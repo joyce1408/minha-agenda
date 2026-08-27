@@ -1,16 +1,16 @@
 {
-  "nome": "Minha Agenda",
-  "nome_curto": "Minha Agenda",
-  "url_inicial": "../index.html",
-  "mostrar": "independente",
-  "cor_de_fundo": "#f5efe6",
-  "cor_tema": "#f1736b",
-  "ícones": [
+  "name": "Minha Agenda",
+  "short_name": "Minha Agenda",
+  "start_url": "../index.html",
+  "display": "standalone",
+  "background_color": "#f5efe6",
+  "theme_color": "#f1736b",
+  "icons": [
     {
       "src": "icone.png",
-      "tamanhos": "512x512",
-      "tipo": "imagem/png",
-      "propósito": "qualquer mascarável"
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
