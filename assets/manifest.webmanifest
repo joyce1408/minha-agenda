@@ -1,7 +1,8 @@
-{
-  "name": "Minha Agenda",
-  "short_name": "Minha Agenda",
-  "start_url": "./index.html",
+1  <!doctype html>
+2  <html lang="pt-BR">
+3  <head>
+4  <link rel="apple-touch-icon" href="ativos/icone.png">
+  <link rel="apple-touch-icon" href="ativos/icone.png">
   "display": "standalone",
   "background_color": "#f5efe6",
   "theme_color": "#173f6b",
