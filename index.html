@@ -574,6 +574,7 @@ function initGoogleClient(){
     googleState.tokenClient=google.accounts.oauth2.initTokenClient({
       client_id:googleState.clientId,
       scope:'https://www.googleapis.com/auth/calendar.events',
+      include_granted_scopes:true,
       callback:(resp)=>{
         googleState.loading=false;
         if(!resp){setGoogleStatus('O Google não retornou uma resposta de autorização.');return}
@@ -590,6 +591,15 @@ function initGoogleClient(){
         localStorage.setItem('ma-google-connected','1');
         setGoogleStatus('Google conectado. Sincronizando…');
         syncGoogle();
+      },
+      error_callback:(err)=>{
+        googleState.loading=false;
+        googleState.tokenClient=null;
+        localStorage.removeItem('ma-google-connected');
+        const type=err?.type||'unknown';
+        if(type==='popup_failed_to_open') setGoogleStatus('O navegador bloqueou a janela do Google. Permita pop-ups para este site e tente novamente.');
+        else if(type==='popup_closed') setGoogleStatus('A janela do Google fechou antes de devolver a autorização. Isso pode acontecer por bloqueio do navegador/rede. Tente novamente; se repetir, abra a agenda no Chrome e permita pop-ups.');
+        else setGoogleStatus(`O Google interrompeu a autorização (${type}). Tente novamente.`);
       }
     });
     return true;
@@ -632,7 +642,7 @@ async function syncGoogle(){
     const incoming=(data.items||[]).map(googleEventToLocal).filter(Boolean);
     state.events=state.events.filter(e=>!e.googleId);
     state.events.push(...incoming); save(); render(); scheduleNotifications(); setGoogleStatus(`Google conectado: ${incoming.length} evento(s) sincronizado(s).`);
-  }catch(err){console.error(err);setGoogleStatus('Erro ao sincronizar Google. Verifique a autorização e o Client ID.');}
+  }catch(err){console.error(err);const msg=String(err?.message||err);setGoogleStatus(msg.startsWith('Google API')?`Erro na API do Google: ${msg.replace(/^Google API \d+: /,'').slice(0,180)}`:'Erro ao sincronizar Google. Verifique a autorização e o Client ID.');}
 }
 async function updateGoogleEvent(existing,payload){
   if(!existing.googleId) return existing;
