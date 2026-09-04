@@ -8,8 +8,6 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <title>Minha Agenda V2</title>
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="apple-touch-icon" sizes="180x180" href="assets/agenda-icon-180.png">
-  <link rel="icon" type="image/png" sizes="192x192" href="assets/agenda-icon-192.png">
   <style>
 *{box-sizing:border-box}
 :root{
@@ -33,7 +31,7 @@ button{cursor:pointer}
 .calendar-toolbar{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:14px}.segmented{display:flex;flex-wrap:nowrap;gap:2px;background:#deddf2;border-radius:11px;padding:3px}.view-switch{border:0;background:transparent;padding:8px 10px;min-width:52px;white-space:nowrap;border-radius:9px;font-weight:800;color:var(--muted);font-size:13px}.view-switch.active{background:#fff;color:var(--navy);box-shadow:0 2px 8px rgba(0,0,0,.06)}.date-controls{display:flex;align-items:center;gap:7px}
 .calendar-day{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden}.day-head{padding:17px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between}.day-title{font-weight:900;color:var(--navy)}.timeline{position:relative}.hour-row{min-height:76px;border-bottom:1px solid #edf1f3;display:grid;grid-template-columns:70px 1fr}.hour-label{font-size:11px;color:#8a959d;text-align:right;padding:10px 12px;border-right:1px solid #edf1f3}.hour-slot{padding:7px 10px}.event-chip{border-left:4px solid var(--navy2);background:#eef5f8;border-radius:10px;padding:8px 10px;margin-bottom:6px}.event-chip.apple{border-color:#7f8c8d;background:#f1f3f3}.event-chip.google{border-color:#5479a8;background:#f1f5fb}.event-chip.microsoft{border-color:#706bb5;background:#f0effb}.event-chip.local{border-color:var(--teal);background:#eff9f7}.event-chip.done{opacity:.5}.event-chip strong{display:block;font-size:12.5px;color:var(--navy)}.event-chip small{color:var(--muted)}
 .week-grid{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:auto}.week-header,.week-body{display:grid;grid-template-columns:60px repeat(7,minmax(120px,1fr));min-width:900px}.week-header>div{padding:12px;border-bottom:1px solid var(--line);font-size:11px;text-align:center}.week-body .week-time{border-right:1px solid var(--line);padding:9px;color:#8a959d;font-size:10px;text-align:right}.week-cell{min-height:68px;border-right:1px solid #edf1f3;border-bottom:1px solid #edf1f3;padding:4px}.month-grid{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;display:grid;grid-template-columns:repeat(7,1fr)}.month-head{padding:10px;font-size:11px;font-weight:900;color:var(--muted);border-bottom:1px solid var(--line)}.month-cell{min-height:100px;border-right:1px solid #edf1f3;border-bottom:1px solid #edf1f3;padding:8px}.month-cell.muted{opacity:.4}.month-day-number{font-size:11px;font-weight:900;margin-bottom:5px}.mini-event{font-size:10px;padding:4px 6px;background:#eef5f8;border-radius:7px;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.section-divider{height:1px;background:var(--line);margin:26px 0}.section-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-end;margin-bottom:12px}.section-head h2{margin:0;color:var(--navy);font-size:18px}.section-head span{font-size:12px;color:var(--muted)}.cards{display:grid;gap:10px}.agenda-card,.task-card,.reminder-card,.panel,.connection-card,.info-box{background:#fff;border:1px solid var(--line);border-radius:15px;padding:14px}.agenda-card{display:grid;grid-template-columns:72px 1fr auto;gap:13px;align-items:center}.time-col strong{display:block;color:var(--navy);font-size:16px}.time-col span{font-size:10px;color:var(--muted)}.card-main h3{margin:0;font-size:14px}.card-main p{margin:4px 0 0;color:var(--muted);font-size:12px}.source-badge{font-size:10px;font-weight:900;padding:6px 8px;border-radius:999px;background:var(--soft);color:var(--navy);white-space:nowrap}.source-badge.microsoft{background:#eeebfb;color:#625aa2}.source-badge.google{background:#edf3fb;color:#4f6f9a}.source-badge.apple{background:#f1f3f3;color:#687277}.source-badge.local{background:#eaf8f5;color:#2f8179}
+.section-divider{height:1px;background:var(--line);margin:26px 0}.section-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-end;margin-bottom:12px}.section-head h2{margin:0;color:var(--navy);font-size:18px}.section-head span{font-size:12px;color:var(--muted)}.cards{display:grid;gap:10px}.agenda-card,.task-card,.reminder-card,.panel,.connection-card,.info-box{background:#fff;border:1px solid var(--line);border-radius:15px;padding:14px}.agenda-card{display:grid;grid-template-columns:72px 1fr auto;gap:13px;align-items:center}.event-actions{display:flex;gap:5px;align-items:center}.event-actions .icon-btn{width:34px;height:34px;padding:6px;display:grid;place-items:center}.icon-btn.danger,.danger-btn{color:#a84d62}.event-chip{cursor:pointer}.event-chip:focus{outline:2px solid var(--navy);outline-offset:2px}.time-col strong{display:block;color:var(--navy);font-size:16px}.time-col span{font-size:10px;color:var(--muted)}.card-main h3{margin:0;font-size:14px}.card-main p{margin:4px 0 0;color:var(--muted);font-size:12px}.source-badge{font-size:10px;font-weight:900;padding:6px 8px;border-radius:999px;background:var(--soft);color:var(--navy);white-space:nowrap}.source-badge.microsoft{background:#eeebfb;color:#625aa2}.source-badge.google{background:#edf3fb;color:#4f6f9a}.source-badge.apple{background:#f1f3f3;color:#687277}.source-badge.local{background:#eaf8f5;color:#2f8179}
 .inline-form{display:flex;gap:10px;margin-bottom:15px}.inline-form input,.field input,.form-grid input,.form-grid select{width:100%;padding:11px 12px;border:1px solid var(--line);background:#fbfcfc;border-radius:10px;color:var(--ink);outline:none}.inline-form input:focus,.form-grid input:focus{border-color:var(--navy2);box-shadow:0 0 0 3px rgba(47,101,139,.1)}
 .task-card{display:flex;align-items:center;gap:12px}.check{width:25px;height:25px;border-radius:8px;border:2px solid var(--line);background:#fff}.check.done{background:var(--teal);border-color:var(--teal);color:#fff}.task-card.done .task-title{text-decoration:line-through;opacity:.55}.task-title{font-weight:800;font-size:13px}.task-meta{font-size:11px;color:var(--muted)}
 .reminder-card{display:flex;justify-content:space-between;gap:10px}.reminder-card span{font-size:13px}.remove-btn{border:0;background:transparent;color:var(--muted)}
@@ -54,6 +52,7 @@ body.dark{--paper:#18252d;--bg:#101a20;--ink:#dbe5ea;--muted:#98a8b1;--line:#2a3
 .hero-planner{display:grid;grid-template-columns:42% 58%;min-height:330px;background:#f8f8fc;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 7px 22px rgba(70,68,110,.07);margin:0 0 22px}.planner-photo{min-height:330px;background:#ececf3}.planner-photo img{width:100%;height:100%;display:block;object-fit:cover}.planner-note{padding:46px 54px;display:flex;flex-direction:column;justify-content:center}.planner-note .eyebrow{color:#716cb3}.planner-note h2{font-family:Georgia,serif;font-weight:500;font-size:36px;line-height:1.2;color:#57529b;margin:12px 0 8px}.planner-note p{font-size:14px;line-height:1.6;color:var(--muted);max-width:420px}.planner-heart{color:#8580c7;font-size:20px}.year-grid{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.year-month{border:1px solid var(--line);border-radius:13px;padding:12px}.year-month h3{margin:0 0 9px;color:var(--navy);font-size:13px}.year-month-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}.year-month-grid span{font-size:9px;text-align:center;color:#707285;padding:4px 0;border-radius:5px}.year-month-grid span.has-event{background:#ecebfa;color:#5e59a1;font-weight:800}.history-wrap{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}.history-card{background:#fff;border:1px solid var(--line);border-radius:15px;padding:15px}.history-card h3{margin:0 0 10px;color:var(--navy);font-size:15px}.history-item{padding:9px 0;border-top:1px solid #eeeef3;font-size:12px;color:var(--muted)}.history-item.done{text-decoration:line-through;opacity:.65}.reminder-actions{display:flex;gap:7px;align-items:center}.complete-btn{border:1px solid var(--line);background:#fff;border-radius:9px;padding:7px 9px;font-size:11px;font-weight:800;color:var(--navy)}
 @media (max-width:720px){.hero-planner{grid-template-columns:1fr}.planner-photo{height:230px;min-height:230px}.planner-note{padding:28px}.planner-note h2{font-size:28px}.year-grid{grid-template-columns:1fr 1fr}.history-wrap{grid-template-columns:1fr}}
   </style>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
   <div class="app-shell">
@@ -167,7 +166,7 @@ body.dark{--paper:#18252d;--bg:#101a20;--ink:#dbe5ea;--muted:#98a8b1;--line:#2a3
           <article class="connection-card">
             <div class="source-icon google">G</div>
             <div><h3>Google Agenda</h3><p>Eventos e calendário Google.</p></div>
-            <button class="secondary-btn">Preparar conexão</button>
+            <button class="secondary-btn" id="googleConnectBtn">Conectar Google</button>
           </article>
           <article class="connection-card">
             <div class="source-icon microsoft">M</div>
@@ -202,6 +201,27 @@ body.dark{--paper:#18252d;--bg:#101a20;--ink:#dbe5ea;--muted:#98a8b1;--line:#2a3
               <div class="photo-help">A foto fica salva neste aparelho e aparece no topo da agenda.</div>
             </div>
           </article>
+          <article class="panel">
+            <h3>Google Agenda</h3>
+            <p class="muted">Conecte sua conta Google para trazer seus compromissos e, depois, criar compromissos diretamente no Google Agenda.</p>
+            <label class="field"><span>Google Client ID</span><input id="googleClientId" placeholder="...apps.googleusercontent.com"></label>
+            <div class="photo-help">Este identificador não é uma senha. Ele será usado pelo navegador para iniciar o login do Google.</div>
+            <div class="photo-actions" style="margin-top:10px">
+              <button class="secondary-btn" type="button" id="saveGoogleClientBtn">Salvar Client ID</button>
+              <button class="ghost-btn" type="button" id="googleSyncBtn">Sincronizar</button>
+            </div>
+            <div id="googleStatus" class="photo-help" style="margin-top:10px">Google não conectado.</div>
+            <select id="googleCalendarSelect" style="display:none;margin-top:10px;width:100%"></select>
+          </article>
+          <article class="panel">
+            <h3>Notificações</h3>
+            <p class="muted">Permita notificações para receber avisos dos compromissos enquanto a agenda estiver aberta.</p>
+            <div class="photo-actions">
+              <button class="secondary-btn" type="button" id="enableNotificationsBtn">Ativar notificações</button>
+              <button class="ghost-btn" type="button" id="testNotificationBtn">Testar</button>
+            </div>
+            <div id="notificationStatus" class="photo-help" style="margin-top:10px">Notificações não configuradas.</div>
+          </article>
         </div>
       </section>
 
@@ -222,8 +242,8 @@ body.dark{--paper:#18252d;--bg:#101a20;--ink:#dbe5ea;--muted:#98a8b1;--line:#2a3
   <dialog id="eventDialog">
     <form method="dialog" class="dialog-card" id="eventForm">
       <button type="button" class="close-btn" id="closeDialog">×</button>
-      <div class="eyebrow">NOVO COMPROMISSO</div>
-      <h2>Adicionar à minha agenda</h2>
+      <div class="eyebrow" id="eventDialogEyebrow">NOVO COMPROMISSO</div>
+      <h2 id="eventDialogTitle">Adicionar à minha agenda</h2>
       <div class="form-grid">
         <label>Nome<input id="eventTitle" required maxlength="90" placeholder="Ex.: Reunião financeira"></label>
         <div class="two-col">
@@ -243,7 +263,7 @@ body.dark{--paper:#18252d;--bg:#101a20;--ink:#dbe5ea;--muted:#98a8b1;--line:#2a3
       </div>
       <div class="dialog-actions">
         <button type="button" class="secondary-btn" id="cancelEvent">Cancelar</button>
-        <button class="primary-btn" value="default">Salvar compromisso</button>
+        <button class="ghost-btn danger-btn" type="button" id="deleteEventBtn" style="display:none">Excluir</button><button class="primary-btn" value="default" id="saveEventBtn">Salvar compromisso</button>
       </div>
     </form>
   </dialog>
@@ -323,7 +343,7 @@ function renderDay(){
   }).join('')}</div></div>`;
 }
 function eventChip(e){
-  return `<div class="event-chip ${sourceClass(e.source)} ${e.done?'done':''}"><strong>${e.time||'Sem horário'} · ${escapeHtml(e.title)}</strong><small>${e.location?escapeHtml(e.location)+' · ':''}${sourceLabel[e.source]}</small></div>`
+  return `<div class="event-chip ${sourceClass(e.source)} ${e.done?'done':''}" onclick='openEventEditor(${JSON.stringify(String(e.id))})' role="button" tabindex="0"><strong>${e.time||'Sem horário'} · ${escapeHtml(e.title)}</strong><small>${e.location?escapeHtml(e.location)+' · ':''}${sourceLabel[e.source]}</small></div>`
 }
 function startOfWeek(d){const x=new Date(d); const day=x.getDay(); x.setDate(x.getDate()-(day===0?6:day-1)); return x}
 function renderWeek(){
@@ -359,10 +379,10 @@ function renderYear(){
 
 function renderUpcoming(){
   const nowKey=isoDate(new Date());
-  const list=[...state.events].filter(e=>e.date>=nowKey && !e.done).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time)).slice(0,15);
-  $('#upcomingList').innerHTML=list.length?list.map(e=>`<article class="agenda-card"><div class="time-col"><strong>${e.time||'—'}</strong><span>${fmtShort(e.date)}</span></div><div class="card-main"><h3>${escapeHtml(e.title)}</h3><p>${e.location?escapeHtml(e.location):'Sem local'}</p></div><button class="source-badge ${e.source}" onclick="toggleEvent(${e.id})">${state.showSource?sourceLabel[e.source]:'○'}</button></article>`).join(''):'<div class="panel muted">Nenhum compromisso encontrado.</div>';
+  const list=[...state.events].filter(e=>e.date>=nowKey && !e.done).sort((a,b)=>(a.date+(a.time||'99:99')).localeCompare(b.date+(b.time||'99:99'))).slice(0,15);
+  $('#upcomingList').innerHTML=list.length?list.map(e=>`<article class="agenda-card"><div class="time-col"><strong>${e.time||'—'}</strong><span>${fmtShort(e.date)}</span></div><div class="card-main"><h3>${escapeHtml(e.title)}</h3><p>${e.location?escapeHtml(e.location):'Sem local'}</p></div><button class="source-badge ${e.source}" type="button" onclick='toggleEvent(${JSON.stringify(String(e.id))})'>${state.showSource?sourceLabel[e.source]:'○'}</button><div class="event-actions"><button class="icon-btn" type="button" onclick='openEventEditor(${JSON.stringify(String(e.id))})' title="Editar" aria-label="Editar">✎</button><button class="icon-btn danger" type="button" onclick='deleteEvent(${JSON.stringify(String(e.id))})' title="Excluir" aria-label="Excluir">×</button></div></article>`).join(''):'<div class="panel muted">Nenhum compromisso encontrado.</div>';
 }
-window.toggleEvent=id=>{const e=state.events.find(x=>x.id===id); if(e){e.done=!e.done;save();render()}}
+window.toggleEvent=id=>{const e=state.events.find(x=>String(x.id)===String(id)); if(e){e.done=!e.done;save();render()}}
 
 function renderTasks(){
   const pending=state.tasks.filter(t=>!t.done), completed=state.tasks.filter(t=>t.done);
@@ -371,7 +391,7 @@ function renderTasks(){
 function taskCard(t){
   return `<article class="task-card"><button class="check" onclick="toggleTask(${t.id})" aria-label="Concluir tarefa"></button><div><div class="task-title">${escapeHtml(t.title)}</div><div class="task-meta">${fmtShort(t.date)}</div></div></article>`
 }
-window.toggleTask=id=>{const t=state.tasks.find(x=>x.id===id); if(t){t.done=!t.done;save();render()}}
+window.toggleTask=id=>{const t=state.tasks.find(x=>String(x.id)===String(id)); if(t){t.done=!t.done;save();render()}}
 
 function renderReminders(){
   const pending=state.reminders.filter(r=>!r.done), completed=state.reminders.filter(r=>r.done);
@@ -379,10 +399,10 @@ function renderReminders(){
   const historyHtml=completed.length?`<div class="history-card standalone-history"><h3>Lembretes concluídos</h3>${completed.map(r=>`<div class="history-item done"><div><strong>${escapeHtml(r.text)}</strong><div>Concluído</div></div><button class="complete-btn" onclick="toggleReminder(${r.id})">Reabrir</button></div>`).join('')}</div>`:'';
   $('#reminderList').innerHTML=`<div class="cards">${pendingHtml}</div>${historyHtml}`;
 }
-window.toggleReminder=id=>{const r=state.reminders.find(x=>x.id===id);if(r){r.done=!r.done;save();render()}}
+window.toggleReminder=id=>{const r=state.reminders.find(x=>String(x.id)===String(id));if(r){r.done=!r.done;save();render()}}
 window.removeReminder=id=>{state.reminders=state.reminders.filter(r=>r.id!==id);save();render()}
 window.convertReminder=id=>{
-  const r=state.reminders.find(x=>x.id===id); if(!r)return;
+  const r=state.reminders.find(x=>String(x.id)===String(id)); if(!r)return;
   $('#eventTitle').value=r.text;
   $('#eventDate').value=isoDate(state.date);
   $('#eventTime').value='';
@@ -422,15 +442,61 @@ $('#prevDate').onclick=()=>{state.date=addDays(state.date,state.calendarView==='
 $('#nextDate').onclick=()=>{state.date=addDays(state.date,state.calendarView==='month'?new Date(state.date.getFullYear(),state.date.getMonth()+1,0).getDate():state.calendarView==='year'?365:state.calendarView==='week'?7:1);render()};
 $('#todayBtn').onclick=()=>{state.date=new Date();render()};
 $('#clearCompleted').onclick=()=>{state.events=state.events.filter(e=>!e.done);save();render()};
-$('#newEventBtn').onclick=()=>{ $('#eventDialog').dataset.reminderId=''; $('#eventDate').value=isoDate(state.date); $('#eventForm').reset(); $('#eventDate').value=isoDate(state.date); $('#eventDialog').showModal() };
+function resetEventDialog(){
+  $('#eventDialog').dataset.reminderId='';
+  $('#eventDialog').dataset.editingId='';
+  $('#eventDialogEyebrow').textContent='NOVO COMPROMISSO';
+  $('#eventDialogTitle').textContent='Adicionar à minha agenda';
+  $('#saveEventBtn').textContent='Salvar compromisso';
+  $('#deleteEventBtn').style.display='none';
+  $('#eventForm').reset();
+  $('#eventDate').value=isoDate(state.date);
+  $('#eventReminder').checked=true;
+}
+$('#newEventBtn').onclick=()=>{resetEventDialog();$('#eventDialog').showModal()};
+window.openEventEditor=id=>{
+  const ev=state.events.find(x=>String(x.id)===String(id)); if(!ev)return;
+  $('#eventDialog').dataset.editingId=String(ev.id); $('#eventDialog').dataset.reminderId='';
+  $('#eventDialogEyebrow').textContent='EDITAR COMPROMISSO';
+  $('#eventDialogTitle').textContent='Editar compromisso';
+  $('#saveEventBtn').textContent='Salvar alterações';
+  $('#deleteEventBtn').style.display='inline-flex';
+  $('#eventTitle').value=ev.title||''; $('#eventDate').value=ev.date||isoDate(state.date); $('#eventTime').value=ev.time||'';
+  $('#eventLocation').value=ev.location||''; $('#eventSource').value=ev.source||'local'; $('#eventReminder').checked=ev.reminder!==false;
+  $('#eventDialog').showModal();
+};
+window.deleteEvent=async id=>{
+  const ev=state.events.find(x=>String(x.id)===String(id)); if(!ev)return;
+  if(!confirm(`Excluir o compromisso "${ev.title}"?`))return;
+  try{
+    if(ev.googleId && googleState.token) await deleteGoogleEvent(ev);
+    state.events=state.events.filter(x=>String(x.id)!==String(id)); save(); render();
+  }catch(err){console.error(err);alert('Não consegui excluir no Google Agenda. O compromisso foi mantido.');}
+};
+$('#deleteEventBtn').onclick=async()=>{const id=$('#eventDialog').dataset.editingId;if(id){$('#eventDialog').close();await deleteEvent(id)}};
 $('#closeDialog').onclick=()=>$('#eventDialog').close();
 $('#cancelEvent').onclick=()=>$('#eventDialog').close();
-$('#eventForm').addEventListener('submit',e=>{
+$('#eventForm').addEventListener('submit',async e=>{
   e.preventDefault();
+  const editingId=$('#eventDialog').dataset.editingId||'';
   const reminderId=Number($('#eventDialog').dataset.reminderId||0);
-  state.events.push({id:Date.now(),title:$('#eventTitle').value.trim(),date:$('#eventDate').value,time:$('#eventTime').value,location:$('#eventLocation').value.trim(),source:$('#eventSource').value,done:false,reminder:$('#eventReminder').checked});
+  const payload={title:$('#eventTitle').value.trim(),date:$('#eventDate').value,time:$('#eventTime').value,location:$('#eventLocation').value.trim(),source:$('#eventSource').value,reminder:$('#eventReminder').checked};
+  if(editingId){
+    const ev=state.events.find(x=>String(x.id)===String(editingId)); if(!ev)return;
+    try{
+      if(ev.googleId && googleState.token){const ge=await updateGoogleEvent(ev,payload);ev.googleId=ge.id;setGoogleStatus('Compromisso atualizado no Google Agenda.');}
+      Object.assign(ev,payload);
+      save(); $('#eventDialog').close(); resetEventDialog(); render();
+    }catch(err){console.error(err);alert('Não consegui atualizar o compromisso no Google Agenda. Nada foi alterado.');}
+    return;
+  }
+  const newEvent={id:Date.now(),...payload,done:false};
+  if(newEvent.source==='google' && googleState.token){
+    try{const ge=await createGoogleEvent(newEvent);newEvent.googleId=ge.id;setGoogleStatus('Compromisso criado no Google Agenda.')}catch(err){console.error(err);alert('Não consegui criar no Google Agenda. O compromisso não foi criado localmente.');return}
+  }
+  state.events.push(newEvent);
   if(reminderId){const r=state.reminders.find(x=>x.id===reminderId);if(r)r.done=true;}
-  save(); e.target.reset(); $('#eventDialog').dataset.reminderId=''; $('#eventDialog').close(); render();
+  save(); e.target.reset(); resetEventDialog(); $('#eventDialog').close(); render(); scheduleNotifications();
 });
 $('#addReminderBtn').onclick=()=>{const v=$('#quickReminder').value.trim();if(!v)return;state.reminders.push({id:Date.now(),text:v,done:false});$('#quickReminder').value='';save();render()};
 $('#themeBtn').onclick=()=>{document.body.classList.toggle('dark');$('#darkToggle').checked=document.body.classList.contains('dark');localStorage.setItem('ma-v2-dark',document.body.classList.contains('dark'))}
@@ -463,10 +529,108 @@ $('#photoInput').addEventListener('change',e=>{
   reader.readAsDataURL(file);
   e.target.value='';
 });
+/* Browser notifications */
+function updateNotificationStatus(){
+  const el=$('#notificationStatus'); if(!el)return;
+  if(!('Notification' in window)){el.textContent='Este navegador não oferece notificações.';return}
+  const p=Notification.permission;
+  el.textContent=p==='granted'?'Notificações ativadas neste navegador.':p==='denied'?'Notificações bloqueadas no navegador.':'Notificações ainda não autorizadas.';
+}
+async function enableNotifications(){
+  if(!('Notification' in window)){updateNotificationStatus();return}
+  const p=await Notification.requestPermission(); updateNotificationStatus(); if(p==='granted') scheduleNotifications();
+}
+function showAgendaNotification(ev){
+  if(!('Notification' in window)||Notification.permission!=='granted')return;
+  try{new Notification('Minha Agenda',{body:`${ev.title}${ev.time?' às '+ev.time:''}`,icon:'assets/agenda-icon-192.png',tag:'agenda-'+ev.id})}catch{}
+}
+function scheduleNotifications(){
+  if(window.__agendaNotifTimer)clearInterval(window.__agendaNotifTimer);
+  if(!('Notification' in window)||Notification.permission!=='granted')return;
+  const check=()=>{
+    const now=Date.now();
+    state.events.filter(e=>e.reminder&&!e.done&&e.time).forEach(e=>{
+      const due=new Date(`${e.date}T${e.time}:00`).getTime();
+      if(Math.abs(due-now)<=30000 && localStorage.getItem('ma-notified-'+e.id)!=='1'){
+        showAgendaNotification(e);localStorage.setItem('ma-notified-'+e.id,'1');
+      }
+    });
+  };
+  check(); window.__agendaNotifTimer=setInterval(check,30000);
+}
+$('#enableNotificationsBtn').onclick=enableNotifications;
+$('#testNotificationBtn').onclick=()=>{if('Notification' in window && Notification.permission==='granted')showAgendaNotification({id:'test',title:'Teste de notificação da Minha Agenda',time:''});else enableNotifications()};
+updateNotificationStatus();
+
+/* Google Calendar integration */
+const googleState={clientId:localStorage.getItem('ma-google-client-id')||'759821438867-7ld71emch596ck9r4rgt7g6uhjfujc71.apps.googleusercontent.com',token:null,tokenClient:null,calendars:[],calendarId:localStorage.getItem('ma-google-calendar-id')||'primary'};
+function setGoogleStatus(msg){const el=$('#googleStatus');if(el)el.textContent=msg}
+function saveGoogleClientId(){const v=$('#googleClientId')?.value.trim();if(!v)return alert('Cole o Google Client ID primeiro.');localStorage.setItem('ma-google-client-id',v);googleState.clientId=v;setGoogleStatus('Client ID salvo. Agora clique em “Conectar Google”.')}
+function googleReady(){return window.google?.accounts?.oauth2 && googleState.clientId}
+function initGoogleClient(){
+  if(!googleReady())return false;
+  googleState.tokenClient=google.accounts.oauth2.initTokenClient({client_id:googleState.clientId,scope:'https://www.googleapis.com/auth/calendar.events',callback:(resp)=>{if(resp.error){setGoogleStatus('Não foi possível autorizar o Google.');return}googleState.token=resp.access_token;localStorage.setItem('ma-google-connected','1');setGoogleStatus('Google conectado. Sincronizando…');syncGoogle()}});
+  return true;
+}
+async function googleFetch(url,options={}){if(!googleState.token)throw new Error('Google não conectado.');const r=await fetch(url,{...options,headers:{...(options.headers||{}),Authorization:`Bearer ${googleState.token}`,'Content-Type':'application/json'}});if(!r.ok){let t='';try{t=await r.text()}catch{};throw new Error(`Google API ${r.status}: ${t||r.statusText}`)}return r.status===204?null:r.json()}
+function googleConnect(){
+  if(!googleState.clientId){switchView('configuracoes');$('#googleClientId')?.focus();setGoogleStatus('Informe o Google Client ID em Configurações.');return}
+  if(!initGoogleClient()){setGoogleStatus('A biblioteca de login do Google ainda está carregando. Tente novamente em alguns segundos.');return}
+  googleState.tokenClient.requestAccessToken({prompt:googleState.token?'':'consent'});
+}
+async function loadGoogleCalendars(){
+  const data=await googleFetch('https://www.googleapis.com/calendar/v3/users/me/calendarList?minAccessRole=reader&maxResults=250');
+  googleState.calendars=data.items||[];
+  const sel=$('#googleCalendarSelect');
+  if(sel){sel.innerHTML=googleState.calendars.filter(c=>c.accessRole!=='freeBusyReader').map(c=>`<option value="${escapeHtml(c.id)}">${escapeHtml(c.summary||c.id)}</option>`).join('');if(googleState.calendars.some(c=>c.id===googleState.calendarId))sel.value=googleState.calendarId;else if(googleState.calendars[0]){googleState.calendarId=googleState.calendars[0].id;sel.value=googleState.calendarId;localStorage.setItem('ma-google-calendar-id',googleState.calendarId)}sel.style.display=googleState.calendars.length?'block':'none'}
+}
+function googleEventToLocal(ev){
+  if(!ev.start)return null;
+  const start=ev.start.dateTime?new Date(ev.start.dateTime):new Date(`${ev.start.date}T00:00:00`);
+  const end=ev.end?.dateTime?new Date(ev.end.dateTime):null;
+  const date=isoDate(start); const time=ev.start.dateTime?`${pad(start.getHours())}:${pad(start.getMinutes())}`:'';
+  return {id:`g-${ev.id}`,googleId:ev.id,title:ev.summary||'(Sem título)',date,time,source:'google',location:ev.location||'',done:ev.status==='cancelled',reminder:true,allDay:!ev.start.dateTime,endDate:end?isoDate(end):date};
+}
+async function syncGoogle(){
+  try{
+    await loadGoogleCalendars();
+    const min=new Date(); min.setMonth(min.getMonth()-1); const max=new Date(); max.setFullYear(max.getFullYear()+1);
+    const data=await googleFetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(googleState.calendarId)}/events?singleEvents=true&orderBy=startTime&timeMin=${encodeURIComponent(min.toISOString())}&timeMax=${encodeURIComponent(max.toISOString())}&maxResults=2500`);
+    const incoming=(data.items||[]).map(googleEventToLocal).filter(Boolean);
+    state.events=state.events.filter(e=>!e.googleId);
+    state.events.push(...incoming); save(); render(); scheduleNotifications(); setGoogleStatus(`Google conectado: ${incoming.length} evento(s) sincronizado(s).`);
+  }catch(err){console.error(err);setGoogleStatus('Erro ao sincronizar Google. Verifique a autorização e o Client ID.');}
+}
+async function updateGoogleEvent(existing,payload){
+  if(!existing.googleId) return existing;
+  if(!payload.time){throw new Error('Eventos do Google precisam de horário para esta versão.');}
+  const d=new Date(`${payload.date}T${payload.time}:00`); const end=new Date(d.getTime()+60*60*1000);
+  const body={summary:payload.title,location:payload.location||undefined,start:{dateTime:d.toISOString()},end:{dateTime:end.toISOString()},reminders:payload.reminder?{useDefault:false,overrides:[{method:'popup',minutes:10}]}:{useDefault:false,overrides:[]}};
+  return await googleFetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(googleState.calendarId)}/events/${encodeURIComponent(existing.googleId)}`,{method:'PUT',body:JSON.stringify(body)});
+}
+async function deleteGoogleEvent(existing){
+  if(!existing.googleId)return;
+  await googleFetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(googleState.calendarId)}/events/${encodeURIComponent(existing.googleId)}`,{method:'DELETE'});
+}
+async function createGoogleEvent(localEvent){
+  const start=localEvent.time?`${localEvent.date}T${localEvent.time}:00`:null;
+  if(!start)return null;
+  const d=new Date(start); const end=new Date(d.getTime()+60*60*1000);
+  const body={summary:localEvent.title,location:localEvent.location||undefined,start:{dateTime:d.toISOString()},end:{dateTime:end.toISOString()},reminders:localEvent.reminder?{useDefault:false,overrides:[{method:'popup',minutes:10}]}:{useDefault:false,overrides:[]}};
+  const ev=await googleFetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(googleState.calendarId)}/events`,{method:'POST',body:JSON.stringify(body)});
+  return ev;
+}
+$('#googleClientId').value=googleState.clientId;
+$('#saveGoogleClientBtn').onclick=saveGoogleClientId;
+$('#googleConnectBtn').onclick=googleConnect;
+$('#googleSyncBtn').onclick=()=>{if(!googleState.token)googleConnect();else syncGoogle()};
+$('#googleCalendarSelect').onchange=e=>{googleState.calendarId=e.target.value;localStorage.setItem('ma-google-calendar-id',googleState.calendarId);if(googleState.token)syncGoogle()};
+if(localStorage.getItem('ma-google-connected')==='1')setGoogleStatus('Google autorizado neste aparelho. Clique em Sincronizar se necessário.');
 applyProfilePhoto();
 if(localStorage.getItem('ma-v2-dark')==='true'){document.body.classList.add('dark');$('#darkToggle').checked=true}
 function escapeHtml(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
 render();
+scheduleNotifications();
 
   </script>
 </body>
