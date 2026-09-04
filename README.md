@@ -22,6 +22,3 @@ As integrações reais com Apple, Google e Microsoft/Teams precisam de autentica
 - `styles.css` — layout
 - `app.js` — lógica local
 - `manifest.webmanifest` — PWA
-
-## Identidade visual
-Paleta oficial: bege/creme + lilás, com capa de agenda em destaque e frase inspiracional.
