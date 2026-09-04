@@ -1,194 +1,191 @@
-<!doctype html>
-<html lang="pt-BR">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#244b67">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <title>Minha Agenda V2</title>
-  <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  <div class="app-shell">
-    <aside class="sidebar" aria-label="Navegação principal">
-      <div class="brand">
-        <div class="brand-mark">MA</div>
-        <div>
-          <strong>Minha Agenda</strong>
-          <span>Central pessoal</span>
-        </div>
-      </div>
+const savedEvents = JSON.parse(localStorage.getItem('ma-v2-events') || 'null');
+const savedTasks = JSON.parse(localStorage.getItem('ma-v2-tasks') || 'null');
+const savedReminders = JSON.parse(localStorage.getItem('ma-v2-reminders') || 'null');
 
-      <nav class="nav">
-        <button class="nav-item active" data-view="agenda">◷ <span>Agenda</span></button>
-        <button class="nav-item" data-view="tarefas">✓ <span>Tarefas</span></button>
-        <button class="nav-item" data-view="lembretes">🔔 <span>Lembretes</span></button>
-        <button class="nav-item" data-view="conexoes">↗ <span>Conexões</span></button>
-        <button class="nav-item" data-view="configuracoes">⚙ <span>Configurações</span></button>
-      </nav>
+const state = {
+  date: new Date(),
+  calendarView: 'day',
+  filter: 'all',
+  showSource: true,
+  events: savedEvents || [
+    {id:1,title:'Reunião financeira',date:isoDate(new Date()),time:'09:00',source:'microsoft',location:'Teams',done:false,reminder:true},
+    {id:2,title:'Consulta / compromisso',date:isoDate(addDays(new Date(),1)),time:'14:30',source:'apple',location:'',done:false,reminder:true},
+    {id:3,title:'Planejamento semanal',date:isoDate(addDays(new Date(),2)),time:'19:00',source:'google',location:'',done:false,reminder:false},
+    {id:4,title:'Comprar materiais',date:isoDate(new Date()),time:'18:00',source:'local',location:'',done:false,reminder:true}
+  ],
+  tasks: savedTasks || [
+    {id:1,title:'Revisar pendências do setor',date:isoDate(new Date()),done:false},
+    {id:2,title:'Organizar documentos',date:isoDate(addDays(new Date(),1)),done:false}
+  ],
+  reminders: (savedReminders || [
+    {id:1,text:'Marcar retorno e separar documentos'},
+    {id:2,text:'Verificar compromissos da próxima semana'}
+  ]).map(r => ({...r, done: Boolean(r.done)}))
+};
 
-      <div class="sidebar-bottom">
-        <div class="sync-status"><span class="status-dot"></span> Ambiente local</div>
-        <small>Protótipo V2 • sem serviços pagos</small>
-      </div>
-    </aside>
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const sourceLabel = {apple:'Apple', google:'Google', microsoft:'Outlook / Teams', local:'Minha Agenda'};
 
-    <main class="main">
-      <header class="topbar">
-        <div>
-          <div class="eyebrow" id="todayEyebrow"></div>
-          <h1 id="pageTitle">Agenda</h1>
-          <p id="pageSubtitle">Tudo organizado em um só lugar.</p>
-        </div>
-        <div class="top-actions">
-          <button class="icon-btn" id="themeBtn" title="Alternar aparência">◐</button>
-          <button class="primary-btn" id="newEventBtn">＋ Novo compromisso</button>
-        </div>
-      </header>
+function isoDate(d){ return new Date(d.getFullYear(),d.getMonth(),d.getDate()).toISOString().slice(0,10) }
+function addDays(d,n){ const x=new Date(d); x.setDate(x.getDate()+n); return x }
+function fmtDate(d){ return new Intl.DateTimeFormat('pt-BR',{weekday:'long',day:'2-digit',month:'long'}).format(d) }
+function fmtShort(s){ const [y,m,d]=s.split('-').map(Number); return `${String(d).padStart(2,'0')}/${String(m).padStart(2,'0')}/${y}` }
+function pad(n){return String(n).padStart(2,'0')}
+function save(){
+  localStorage.setItem('ma-v2-events',JSON.stringify(state.events));
+  localStorage.setItem('ma-v2-tasks',JSON.stringify(state.tasks));
+  localStorage.setItem('ma-v2-reminders',JSON.stringify(state.reminders));
+}
+function eventsFor(date){
+  const key=isoDate(date);
+  return state.events.filter(e=>e.date===key).sort((a,b)=>(a.time||'99:99').localeCompare(b.time||'99:99'))
+}
+function sourceClass(s){return s}
 
-      <section id="agendaView" class="view">
-        <div class="summary-row">
-          <button class="summary-card" data-filter="all"><strong id="summaryAll">0</strong><span>Hoje</span></button>
-          <button class="summary-card" data-filter="pending"><strong id="summaryPending">0</strong><span>Pendentes</span></button>
-          <button class="summary-card" data-filter="tasks"><strong id="summaryTasks">0</strong><span>Tarefas</span></button>
-          <button class="summary-card alert" data-filter="urgent"><strong id="summaryUrgent">0</strong><span>Próximos</span></button>
-        </div>
+function render(){
+  $('#todayEyebrow').textContent = fmtDate(new Date());
+  $('#currentDateLabel').textContent = fmtShort(isoDate(state.date));
+  $('#summaryAll').textContent = eventsFor(new Date()).length;
+  $('#summaryPending').textContent = state.events.filter(e=>!e.done).length;
+  $('#summaryTasks').textContent = state.tasks.filter(t=>!t.done).length;
+  $('#summaryUrgent').textContent = state.events.filter(e=>{
+    const d=new Date(e.date+'T00:00:00'); const now=new Date();
+    const diff=(d-new Date(now.getFullYear(),now.getMonth(),now.getDate()))/86400000;
+    return diff>=0&&diff<=3&&!e.done
+  }).length;
+  renderCalendar(); renderUpcoming(); renderTasks(); renderReminders();
+}
 
-        <div class="calendar-toolbar">
-          <div class="segmented">
-            <button class="view-switch active" data-calendar-view="day">Dia</button>
-            <button class="view-switch" data-calendar-view="week">Semana</button>
-            <button class="view-switch" data-calendar-view="month">Mês</button>
-            <button class="view-switch" data-calendar-view="year">Ano</button>
-          </div>
-          <div class="date-controls">
-            <button class="icon-btn" id="prevDate">‹</button>
-            <button class="date-label" id="currentDateLabel"></button>
-            <button class="icon-btn" id="nextDate">›</button>
-            <button class="ghost-btn" id="todayBtn">Hoje</button>
-          </div>
-        </div>
+function renderCalendar(){
+  const box=$('#calendarContent');
+  if(state.calendarView==='day') box.innerHTML=renderDay();
+  if(state.calendarView==='week') box.innerHTML=renderWeek();
+  if(state.calendarView==='month') box.innerHTML=renderMonth();
+  if(state.calendarView==='year') box.innerHTML=renderYear();
+}
+function renderDay(){
+  const items=eventsFor(state.date), hours=Array.from({length:15},(_,i)=>i+7);
+  return `<div class="calendar-day"><div class="day-head"><div><div class="eyebrow">DIA SELECIONADO</div><div class="day-title">${fmtDate(state.date)}</div></div><div class="source-badge">${items.length} evento(s)</div></div><div class="timeline">${hours.map(h=>{
+    const inHour=items.filter(e=>(e.time||'').startsWith(pad(h)));
+    return `<div class="hour-row"><div class="hour-label">${pad(h)}:00</div><div class="hour-slot">${inHour.map(eventChip).join('')}</div></div>`;
+  }).join('')}</div></div>`;
+}
+function eventChip(e){
+  return `<div class="event-chip ${sourceClass(e.source)} ${e.done?'done':''}"><strong>${e.time||'Sem horário'} · ${escapeHtml(e.title)}</strong><small>${e.location?escapeHtml(e.location)+' · ':''}${sourceLabel[e.source]}</small></div>`
+}
+function startOfWeek(d){const x=new Date(d); const day=x.getDay(); x.setDate(x.getDate()-(day===0?6:day-1)); return x}
+function renderWeek(){
+  const start=startOfWeek(state.date), times=Array.from({length:14},(_,i)=>i+8), days=Array.from({length:7},(_,i)=>addDays(start,i));
+  const header=days.map(d=>`<div>${new Intl.DateTimeFormat('pt-BR',{weekday:'short'}).format(d)}<br><b>${pad(d.getDate())}</b></div>`).join('');
+  let body='';
+  times.forEach(h=>{
+    body += `<div class="week-time">${pad(h)}</div>`;
+    days.forEach(d=>{
+      const items=eventsFor(d).filter(e=>(e.time||'').startsWith(pad(h)));
+      body += `<div class="week-cell">${items.map(e=>`<div class="mini-event">${escapeHtml(e.time||'')} ${escapeHtml(e.title)}</div>`).join('')}</div>`;
+    });
+  });
+  return `<div class="week-grid"><div class="week-header"><div></div>${header}</div><div class="week-body">${body}</div></div>`;
+}
+function renderMonth(){
+  const y=state.date.getFullYear(),m=state.date.getMonth(),first=new Date(y,m,1),offset=(first.getDay()+6)%7,daysIn=new Date(y,m+1,0).getDate();
+  const cells=[]; for(let i=0;i<offset;i++) cells.push('<div class="month-cell muted"></div>');
+  for(let day=1;day<=daysIn;day++){
+    const d=new Date(y,m,day), items=eventsFor(d);
+    cells.push(`<div class="month-cell"><div class="month-day-number">${day}</div>${items.slice(0,3).map(e=>`<div class="mini-event">${escapeHtml(e.time||'')} ${escapeHtml(e.title)}</div>`).join('')}</div>`)
+  }
+  return `<div class="month-grid">${['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'].map(x=>`<div class="month-head">${x}</div>`).join('')}${cells.join('')}</div>`;
+}
+function renderYear(){
+  const y=state.date.getFullYear();
+  const names=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  return `<div class="year-grid">${names.map((name,m)=>{
+    const days=new Date(y,m+1,0).getDate();
+    return `<article class="year-month"><h3>${name}</h3><div class="year-month-grid">${Array.from({length:days},(_,i)=>{const d=new Date(y,m,i+1),has=eventsFor(d).length;return `<span class="${has?'has-event':''}">${i+1}</span>`}).join('')}</div></article>`
+  }).join('')}</div>`;
+}
 
-        <section class="hero-planner">
-          <div class="planner-photo"><img src="assets/agenda-capa.jpg" alt="Capa da Minha Agenda"></div>
-          <div class="planner-note">
-            <div class="eyebrow">MINHA AGENDA</div>
-            <h2>Planeje seus dias,<br>viva seus sonhos.</h2>
-            <div class="planner-heart">♥</div>
-            <p>Organize compromissos, tarefas e lembretes em um só lugar.</p>
-          </div>
-        </section>
+function renderUpcoming(){
+  const nowKey=isoDate(new Date());
+  const list=[...state.events].filter(e=>e.date>=nowKey && !e.done).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time)).slice(0,15);
+  $('#upcomingList').innerHTML=list.length?list.map(e=>`<article class="agenda-card"><div class="time-col"><strong>${e.time||'—'}</strong><span>${fmtShort(e.date)}</span></div><div class="card-main"><h3>${escapeHtml(e.title)}</h3><p>${e.location?escapeHtml(e.location):'Sem local'}</p></div><button class="source-badge ${e.source}" onclick="toggleEvent(${e.id})">${state.showSource?sourceLabel[e.source]:'○'}</button></article>`).join(''):'<div class="panel muted">Nenhum compromisso encontrado.</div>';
+}
+window.toggleEvent=id=>{const e=state.events.find(x=>x.id===id); if(e){e.done=!e.done;save();render()}}
 
-        <div id="calendarContent"></div>
+function renderTasks(){
+  const pending=state.tasks.filter(t=>!t.done), completed=state.tasks.filter(t=>t.done);
+  $('#taskList').innerHTML=`<div class="cards">${pending.length?pending.map(taskCard).join(''):'<div class="panel muted">Nenhuma tarefa pendente.</div>'}</div>${completed.length?`<div class="history-card standalone-history"><h3>Tarefas concluídas</h3>${completed.map(t=>`<div class="history-item done"><div><strong>${escapeHtml(t.title)}</strong><div>${fmtShort(t.date)}</div></div><button class="complete-btn" onclick="toggleTask(${t.id})">Reabrir</button></div>`).join('')}</div>`:''}`;
+}
+function taskCard(t){
+  return `<article class="task-card"><button class="check" onclick="toggleTask(${t.id})" aria-label="Concluir tarefa"></button><div><div class="task-title">${escapeHtml(t.title)}</div><div class="task-meta">${fmtShort(t.date)}</div></div></article>`
+}
+window.toggleTask=id=>{const t=state.tasks.find(x=>x.id===id); if(t){t.done=!t.done;save();render()}}
 
-        <div class="section-divider"></div>
+function renderReminders(){
+  const pending=state.reminders.filter(r=>!r.done), completed=state.reminders.filter(r=>r.done);
+  const pendingHtml=pending.length?pending.map(r=>`<article class="reminder-card"><span>${escapeHtml(r.text)}</span><div class="reminder-actions"><button class="complete-btn" onclick="convertReminder(${r.id})">Virar compromisso</button><button class="complete-btn" onclick="toggleReminder(${r.id})">Concluir</button></div></article>`).join(''):'<div class="panel muted">Nenhum lembrete pendente.</div>';
+  const historyHtml=completed.length?`<div class="history-card standalone-history"><h3>Lembretes concluídos</h3>${completed.map(r=>`<div class="history-item done"><div><strong>${escapeHtml(r.text)}</strong><div>Concluído</div></div><button class="complete-btn" onclick="toggleReminder(${r.id})">Reabrir</button></div>`).join('')}</div>`:'';
+  $('#reminderList').innerHTML=`<div class="cards">${pendingHtml}</div>${historyHtml}`;
+}
+window.toggleReminder=id=>{const r=state.reminders.find(x=>x.id===id);if(r){r.done=!r.done;save();render()}}
+window.removeReminder=id=>{state.reminders=state.reminders.filter(r=>r.id!==id);save();render()}
+window.convertReminder=id=>{
+  const r=state.reminders.find(x=>x.id===id); if(!r)return;
+  $('#eventTitle').value=r.text;
+  $('#eventDate').value=isoDate(state.date);
+  $('#eventTime').value='';
+  $('#eventLocation').value='';
+  $('#eventSource').value='local';
+  $('#eventReminder').checked=true;
+  $('#eventDialog').dataset.reminderId=String(id);
+  $('#eventDialog').showModal();
+}
 
-        <div class="section-head">
-          <div>
-            <h2>Próximos compromissos</h2>
-            <span>Ordenados por data e horário</span>
-          </div>
-          <button class="ghost-btn" id="clearCompleted">Limpar concluídos</button>
-        </div>
-        <div id="upcomingList" class="cards"></div>
-      </section>
-
-      <section id="tarefasView" class="view hidden">
-        <div class="section-head"><div><h2>Tarefas</h2><span>Atividades que você precisa concluir.</span></div></div>
-        <div id="taskList" class="cards"></div>
-      </section>
-
-      <section id="lembretesView" class="view hidden">
-        <div class="inline-form">
-          <input id="quickReminder" placeholder="Escreva um lembrete rápido…" maxlength="140">
-          <button class="primary-btn" id="addReminderBtn">Adicionar</button>
-        </div>
-        <div id="reminderList" class="cards"></div>
-      </section>
-
-      <section id="conexoesView" class="view hidden">
-        <div class="connection-grid">
-          <article class="connection-card">
-            <div class="source-icon apple"></div>
-            <div><h3>Apple</h3><p>Calendários e Lembretes do ecossistema Apple.</p></div>
-            <button class="secondary-btn">Preparar conexão</button>
-          </article>
-          <article class="connection-card">
-            <div class="source-icon google">G</div>
-            <div><h3>Google Agenda</h3><p>Eventos e calendário Google.</p></div>
-            <button class="secondary-btn">Preparar conexão</button>
-          </article>
-          <article class="connection-card">
-            <div class="source-icon microsoft">M</div>
-            <div><h3>Microsoft 365</h3><p>Outlook e reuniões do Teams corporativo.</p></div>
-            <button class="secondary-btn">Preparar conexão</button>
-          </article>
-        </div>
-        <div class="info-box">
-          <strong>Arquitetura da V2</strong>
-          <p>Os conectores ficam isolados da interface. Nesta primeira versão, o painel é funcional localmente e já está preparado para receber autenticação e sincronização oficiais sem expor segredos no código público.</p>
-        </div>
-      </section>
-
-      <section id="configuracoesView" class="view hidden">
-        <div class="settings-grid">
-          <article class="panel">
-            <h3>Aparência</h3>
-            <label class="setting-row"><span>Tema escuro</span><input type="checkbox" id="darkToggle"></label>
-            <label class="setting-row"><span>Mostrar origem nos eventos</span><input type="checkbox" id="showSourceToggle" checked></label>
-          </article>
-          <article class="panel">
-            <h3>Personalização</h3>
-            <p class="muted">Troque o nome e o ícone sem alterar o código.</p>
-            <label class="field"><span>Nome da agenda</span><input id="agendaName" value="Minha Agenda"></label>
-            <button class="secondary-btn" id="saveNameBtn">Salvar</button>
-          </article>
-        </div>
-      </section>
-
-      <footer>Minha Agenda V2 • protótipo local • preparado para integrações oficiais</footer>
-    </main>
-  </div>
-
-  <div class="mobile-bar">
-    <button class="active" data-view="agenda">◷<span>Agenda</span></button>
-    <button data-view="tarefas">✓<span>Tarefas</span></button>
-    <button data-view="lembretes">🔔<span>Lembretes</span></button>
-    <button data-view="conexoes">↗<span>Conexões</span></button>
-    <button data-view="configuracoes">⚙<span>Ajustes</span></button>
-  </div>
-
-  <dialog id="eventDialog">
-    <form method="dialog" class="dialog-card" id="eventForm">
-      <button type="button" class="close-btn" id="closeDialog">×</button>
-      <div class="eyebrow">NOVO COMPROMISSO</div>
-      <h2>Adicionar à minha agenda</h2>
-      <div class="form-grid">
-        <label>Nome<input id="eventTitle" required maxlength="90" placeholder="Ex.: Reunião financeira"></label>
-        <div class="two-col">
-          <label>Data<input id="eventDate" type="date" required></label>
-          <label>Hora<input id="eventTime" type="time"></label>
-        </div>
-        <label>Local<input id="eventLocation" maxlength="100" placeholder="Opcional"></label>
-        <label>Origem
-          <select id="eventSource">
-            <option value="local">Minha Agenda</option>
-            <option value="apple">Apple</option>
-            <option value="google">Google</option>
-            <option value="microsoft">Outlook / Teams</option>
-          </select>
-        </label>
-        <label class="setting-row"><span>Me avisar</span><input id="eventReminder" type="checkbox" checked></label>
-      </div>
-      <div class="dialog-actions">
-        <button type="button" class="secondary-btn" id="cancelEvent">Cancelar</button>
-        <button class="primary-btn" value="default">Salvar compromisso</button>
-      </div>
-    </form>
-  </dialog>
-
-  <script src="app.js"></script>
-</body>
-</html>
+function switchView(view){
+  $$('.view').forEach(v=>v.classList.add('hidden')); $(`#${view}View`).classList.remove('hidden');
+  $$('.nav-item,.mobile-bar button').forEach(b=>b.classList.toggle('active',b.dataset.view===view));
+  const titles={agenda:['Agenda','Tudo organizado em um só lugar.'],tarefas:['Tarefas','Atividades que você precisa concluir.'],lembretes:['Lembretes','Anotações rápidas para não esquecer.'],conexoes:['Conexões','Prepare as fontes que formarão sua agenda unificada.'],configuracoes:['Configurações','Personalize a sua experiência.']};
+  $('#pageTitle').textContent=titles[view][0]; $('#pageSubtitle').textContent=titles[view][1];
+}
+$$('[data-view]').forEach(b=>b.addEventListener('click',()=>switchView(b.dataset.view)));
+$$('[data-filter]').forEach(b=>b.addEventListener('click',()=>{
+  const f=b.dataset.filter;
+  if(f==='tasks'){
+    switchView('tarefas');
+    setTimeout(()=>$('#taskList')?.scrollIntoView({behavior:'smooth',block:'start'}),50);
+    return;
+  }
+  switchView('agenda');
+  if(f==='all'){
+    state.date=new Date();
+    render();
+    setTimeout(()=>$('#calendarContent')?.scrollIntoView({behavior:'smooth',block:'start'}),50);
+    return;
+  }
+  render();
+  setTimeout(()=>$('#upcomingList')?.scrollIntoView({behavior:'smooth',block:'start'}),50);
+}));
+$$('[data-calendar-view]').forEach(b=>b.addEventListener('click',()=>{state.calendarView=b.dataset.calendarView;$$('[data-calendar-view]').forEach(x=>x.classList.toggle('active',x===b));renderCalendar()}));
+$('#prevDate').onclick=()=>{state.date=addDays(state.date,state.calendarView==='month'?-(new Date(state.date.getFullYear(),state.date.getMonth(),0).getDate()):state.calendarView==='year'?-365:state.calendarView==='week'?-7:-1);render()};
+$('#nextDate').onclick=()=>{state.date=addDays(state.date,state.calendarView==='month'?new Date(state.date.getFullYear(),state.date.getMonth()+1,0).getDate():state.calendarView==='year'?365:state.calendarView==='week'?7:1);render()};
+$('#todayBtn').onclick=()=>{state.date=new Date();render()};
+$('#clearCompleted').onclick=()=>{state.events=state.events.filter(e=>!e.done);save();render()};
+$('#newEventBtn').onclick=()=>{ $('#eventDialog').dataset.reminderId=''; $('#eventDate').value=isoDate(state.date); $('#eventForm').reset(); $('#eventDate').value=isoDate(state.date); $('#eventDialog').showModal() };
+$('#closeDialog').onclick=()=>$('#eventDialog').close();
+$('#cancelEvent').onclick=()=>$('#eventDialog').close();
+$('#eventForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  const reminderId=Number($('#eventDialog').dataset.reminderId||0);
+  state.events.push({id:Date.now(),title:$('#eventTitle').value.trim(),date:$('#eventDate').value,time:$('#eventTime').value,location:$('#eventLocation').value.trim(),source:$('#eventSource').value,done:false,reminder:$('#eventReminder').checked});
+  if(reminderId){const r=state.reminders.find(x=>x.id===reminderId);if(r)r.done=true;}
+  save(); e.target.reset(); $('#eventDialog').dataset.reminderId=''; $('#eventDialog').close(); render();
+});
+$('#addReminderBtn').onclick=()=>{const v=$('#quickReminder').value.trim();if(!v)return;state.reminders.push({id:Date.now(),text:v,done:false});$('#quickReminder').value='';save();render()};
+$('#themeBtn').onclick=()=>{document.body.classList.toggle('dark');$('#darkToggle').checked=document.body.classList.contains('dark');localStorage.setItem('ma-v2-dark',document.body.classList.contains('dark'))}
+$('#darkToggle').onchange=e=>{document.body.classList.toggle('dark',e.target.checked);localStorage.setItem('ma-v2-dark',e.target.checked)}
+$('#showSourceToggle').onchange=e=>{state.showSource=e.target.checked;renderUpcoming()}
+$('#saveNameBtn').onclick=()=>{const v=$('#agendaName').value.trim()||'Minha Agenda';document.title=v;document.querySelector('.brand strong').textContent=v;alert('Nome salvo neste aparelho.')}
+if(localStorage.getItem('ma-v2-dark')==='true'){document.body.classList.add('dark');$('#darkToggle').checked=true}
+function escapeHtml(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
+render();

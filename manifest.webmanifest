@@ -1,9 +1,194 @@
-{
-  "name": "Minha Agenda V2",
-  "short_name": "Minha Agenda",
-  "start_url": ".",
-  "display": "standalone",
-  "background_color": "#f3f6f7",
-  "theme_color": "#244b67",
-  "lang": "pt-BR"
-}
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#244b67">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>Minha Agenda V2</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Navegação principal">
+      <div class="brand">
+        <div class="brand-mark">MA</div>
+        <div>
+          <strong>Minha Agenda</strong>
+          <span>Central pessoal</span>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <button class="nav-item active" data-view="agenda">◷ <span>Agenda</span></button>
+        <button class="nav-item" data-view="tarefas">✓ <span>Tarefas</span></button>
+        <button class="nav-item" data-view="lembretes">🔔 <span>Lembretes</span></button>
+        <button class="nav-item" data-view="conexoes">↗ <span>Conexões</span></button>
+        <button class="nav-item" data-view="configuracoes">⚙ <span>Configurações</span></button>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <div class="sync-status"><span class="status-dot"></span> Ambiente local</div>
+        <small>Protótipo V2 • sem serviços pagos</small>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <div class="eyebrow" id="todayEyebrow"></div>
+          <h1 id="pageTitle">Agenda</h1>
+          <p id="pageSubtitle">Tudo organizado em um só lugar.</p>
+        </div>
+        <div class="top-actions">
+          <button class="icon-btn" id="themeBtn" title="Alternar aparência">◐</button>
+          <button class="primary-btn" id="newEventBtn">＋ Novo compromisso</button>
+        </div>
+      </header>
+
+      <section id="agendaView" class="view">
+        <div class="summary-row">
+          <button class="summary-card" data-filter="all"><strong id="summaryAll">0</strong><span>Hoje</span></button>
+          <button class="summary-card" data-filter="pending"><strong id="summaryPending">0</strong><span>Pendentes</span></button>
+          <button class="summary-card" data-filter="tasks"><strong id="summaryTasks">0</strong><span>Tarefas</span></button>
+          <button class="summary-card alert" data-filter="urgent"><strong id="summaryUrgent">0</strong><span>Próximos</span></button>
+        </div>
+
+        <div class="calendar-toolbar">
+          <div class="segmented">
+            <button class="view-switch active" data-calendar-view="day">Dia</button>
+            <button class="view-switch" data-calendar-view="week">Semana</button>
+            <button class="view-switch" data-calendar-view="month">Mês</button>
+            <button class="view-switch" data-calendar-view="year">Ano</button>
+          </div>
+          <div class="date-controls">
+            <button class="icon-btn" id="prevDate">‹</button>
+            <button class="date-label" id="currentDateLabel"></button>
+            <button class="icon-btn" id="nextDate">›</button>
+            <button class="ghost-btn" id="todayBtn">Hoje</button>
+          </div>
+        </div>
+
+        <section class="hero-planner">
+          <div class="planner-photo"><img src="assets/agenda-capa.jpg" alt="Capa da Minha Agenda"></div>
+          <div class="planner-note">
+            <div class="eyebrow">MINHA AGENDA</div>
+            <h2>Planeje seus dias,<br>viva seus sonhos.</h2>
+            <div class="planner-heart">♥</div>
+            <p>Organize compromissos, tarefas e lembretes em um só lugar.</p>
+          </div>
+        </section>
+
+        <div id="calendarContent"></div>
+
+        <div class="section-divider"></div>
+
+        <div class="section-head">
+          <div>
+            <h2>Próximos compromissos</h2>
+            <span>Ordenados por data e horário</span>
+          </div>
+          <button class="ghost-btn" id="clearCompleted">Limpar concluídos</button>
+        </div>
+        <div id="upcomingList" class="cards"></div>
+      </section>
+
+      <section id="tarefasView" class="view hidden">
+        <div class="section-head"><div><h2>Tarefas</h2><span>Atividades que você precisa concluir.</span></div></div>
+        <div id="taskList" class="cards"></div>
+      </section>
+
+      <section id="lembretesView" class="view hidden">
+        <div class="inline-form">
+          <input id="quickReminder" placeholder="Escreva um lembrete rápido…" maxlength="140">
+          <button class="primary-btn" id="addReminderBtn">Adicionar</button>
+        </div>
+        <div id="reminderList" class="cards"></div>
+      </section>
+
+      <section id="conexoesView" class="view hidden">
+        <div class="connection-grid">
+          <article class="connection-card">
+            <div class="source-icon apple"></div>
+            <div><h3>Apple</h3><p>Calendários e Lembretes do ecossistema Apple.</p></div>
+            <button class="secondary-btn">Preparar conexão</button>
+          </article>
+          <article class="connection-card">
+            <div class="source-icon google">G</div>
+            <div><h3>Google Agenda</h3><p>Eventos e calendário Google.</p></div>
+            <button class="secondary-btn">Preparar conexão</button>
+          </article>
+          <article class="connection-card">
+            <div class="source-icon microsoft">M</div>
+            <div><h3>Microsoft 365</h3><p>Outlook e reuniões do Teams corporativo.</p></div>
+            <button class="secondary-btn">Preparar conexão</button>
+          </article>
+        </div>
+        <div class="info-box">
+          <strong>Arquitetura da V2</strong>
+          <p>Os conectores ficam isolados da interface. Nesta primeira versão, o painel é funcional localmente e já está preparado para receber autenticação e sincronização oficiais sem expor segredos no código público.</p>
+        </div>
+      </section>
+
+      <section id="configuracoesView" class="view hidden">
+        <div class="settings-grid">
+          <article class="panel">
+            <h3>Aparência</h3>
+            <label class="setting-row"><span>Tema escuro</span><input type="checkbox" id="darkToggle"></label>
+            <label class="setting-row"><span>Mostrar origem nos eventos</span><input type="checkbox" id="showSourceToggle" checked></label>
+          </article>
+          <article class="panel">
+            <h3>Personalização</h3>
+            <p class="muted">Troque o nome e o ícone sem alterar o código.</p>
+            <label class="field"><span>Nome da agenda</span><input id="agendaName" value="Minha Agenda"></label>
+            <button class="secondary-btn" id="saveNameBtn">Salvar</button>
+          </article>
+        </div>
+      </section>
+
+      <footer>Minha Agenda V2 • protótipo local • preparado para integrações oficiais</footer>
+    </main>
+  </div>
+
+  <div class="mobile-bar">
+    <button class="active" data-view="agenda">◷<span>Agenda</span></button>
+    <button data-view="tarefas">✓<span>Tarefas</span></button>
+    <button data-view="lembretes">🔔<span>Lembretes</span></button>
+    <button data-view="conexoes">↗<span>Conexões</span></button>
+    <button data-view="configuracoes">⚙<span>Ajustes</span></button>
+  </div>
+
+  <dialog id="eventDialog">
+    <form method="dialog" class="dialog-card" id="eventForm">
+      <button type="button" class="close-btn" id="closeDialog">×</button>
+      <div class="eyebrow">NOVO COMPROMISSO</div>
+      <h2>Adicionar à minha agenda</h2>
+      <div class="form-grid">
+        <label>Nome<input id="eventTitle" required maxlength="90" placeholder="Ex.: Reunião financeira"></label>
+        <div class="two-col">
+          <label>Data<input id="eventDate" type="date" required></label>
+          <label>Hora<input id="eventTime" type="time"></label>
+        </div>
+        <label>Local<input id="eventLocation" maxlength="100" placeholder="Opcional"></label>
+        <label>Origem
+          <select id="eventSource">
+            <option value="local">Minha Agenda</option>
+            <option value="apple">Apple</option>
+            <option value="google">Google</option>
+            <option value="microsoft">Outlook / Teams</option>
+          </select>
+        </label>
+        <label class="setting-row"><span>Me avisar</span><input id="eventReminder" type="checkbox" checked></label>
+      </div>
+      <div class="dialog-actions">
+        <button type="button" class="secondary-btn" id="cancelEvent">Cancelar</button>
+        <button class="primary-btn" value="default">Salvar compromisso</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>
