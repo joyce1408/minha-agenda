@@ -438,7 +438,7 @@ $('#saveNameBtn').onclick=()=>{const v=$('#agendaName').value.trim()||'Minha Age
 function applyProfilePhoto(){
   const data=localStorage.getItem('ma-v2-photo');
   const targets=[$('#brandAvatar'),$('#topAvatar')];
-  targets.forEach(el=>{if(!el)return;el.innerHTML=data?`<img src="${data}" alt="Minha foto">`:'M'});
+  targets.forEach(el=>{if(!el)return;el.innerHTML=data?`<img src="${data}" alt="Minha foto">`:'＋'});
 }
 function openPhotoPicker(){$('#photoInput').click()}
 $('#brandAvatar').onclick=openPhotoPicker;
