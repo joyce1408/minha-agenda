@@ -38,6 +38,7 @@ button{cursor:pointer}
 .connection-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.connection-card{display:grid;grid-template-columns:42px 1fr;gap:11px}.connection-card h3{margin:0;color:var(--navy);font-size:14px}.connection-card p{margin:4px 0 12px;font-size:11px;color:var(--muted);line-height:1.5}.connection-card button{grid-column:1/-1}.source-icon{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-weight:900;color:#fff}.source-icon.apple{background:#313131}.source-icon.google{background:#5e7ea9}.source-icon.microsoft{background:#7957a8}.info-box{margin-top:14px;background:#f7f7fb}.info-box p{margin:6px 0 0;color:var(--muted);font-size:12px;line-height:1.6}
 .settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.panel h3{margin:0 0 12px;color:var(--navy)}.setting-row{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:10px 0;font-size:13px;border-bottom:1px solid #edf1f3}.setting-row:last-child{border-bottom:0}.muted{color:var(--muted);font-size:12px}.field{display:grid;gap:7px;margin:13px 0;font-size:12px;color:var(--muted)}
 footer{text-align:center;color:#88949d;font-size:10px;margin-top:32px}
+.profile-avatar{width:44px;height:44px;border-radius:50%;overflow:hidden;border:2px solid #fff;background:#fff;color:var(--navy);display:grid;place-items:center;font-weight:900;font-size:16px;box-shadow:0 3px 12px rgba(31,58,76,.12);cursor:pointer;flex:0 0 auto}.profile-avatar img{width:100%;height:100%;object-fit:cover;display:block}.brand-mark{overflow:hidden;cursor:pointer}.brand-mark img{width:100%;height:100%;object-fit:cover;display:block}.photo-actions{display:flex;gap:8px;align-items:center;margin-top:8px}.photo-help{font-size:11px;color:var(--muted);line-height:1.45}.top-profile{display:flex;align-items:center;gap:9px}.top-profile .profile-name{font-size:11px;color:var(--muted);max-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}@media(max-width:720px){.top-profile .profile-name{display:none}.profile-avatar{width:40px;height:40px}}
 
 dialog{border:0;border-radius:18px;padding:0;width:min(540px,calc(100% - 24px));box-shadow:0 35px 90px rgba(20,42,56,.28)}dialog::backdrop{background:rgba(18,38,52,.5)}.dialog-card{padding:24px;position:relative}.dialog-card h2{margin:4px 0 18px;color:var(--navy)}.close-btn{position:absolute;right:14px;top:14px;border:0;background:#eef2f3;border-radius:50%;width:30px;height:30px}.form-grid{display:grid;gap:13px}.form-grid label{display:grid;gap:6px;font-size:12px;color:var(--muted)}.two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px}.dialog-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:20px}
 
@@ -56,7 +57,7 @@ body.dark{--paper:#18252d;--bg:#101a20;--ink:#dbe5ea;--muted:#98a8b1;--line:#2a3
   <div class="app-shell">
     <aside class="sidebar" aria-label="Navegação principal">
       <div class="brand">
-        <div class="brand-mark">MA</div>
+        <button class="brand-mark" id="brandAvatar" type="button" title="Trocar minha foto">M</button>
         <div>
           <strong>Minha Agenda</strong>
           <span>Central pessoal</span>
@@ -87,6 +88,10 @@ body.dark{--paper:#18252d;--bg:#101a20;--ink:#dbe5ea;--muted:#98a8b1;--line:#2a3
         <div class="top-actions">
           <button class="icon-btn" id="themeBtn" title="Alternar aparência">◐</button>
           <button class="primary-btn" id="newEventBtn">＋ Novo compromisso</button>
+          <div class="top-profile">
+            <span class="profile-name" id="profileNameLabel">Minha foto</span>
+            <button class="profile-avatar" id="topAvatar" type="button" title="Trocar minha foto">M</button>
+          </div>
         </div>
       </header>
 
@@ -183,9 +188,17 @@ body.dark{--paper:#18252d;--bg:#101a20;--ink:#dbe5ea;--muted:#98a8b1;--line:#2a3
           </article>
           <article class="panel">
             <h3>Personalização</h3>
-            <p class="muted">Troque o nome e o ícone sem alterar o código.</p>
+            <p class="muted">Troque o nome e coloque sua própria foto.</p>
             <label class="field"><span>Nome da agenda</span><input id="agendaName" value="Minha Agenda"></label>
-            <button class="secondary-btn" id="saveNameBtn">Salvar</button>
+            <button class="secondary-btn" id="saveNameBtn">Salvar nome</button>
+            <div class="field">
+              <span>Minha foto</span>
+              <div class="photo-actions">
+                <button class="secondary-btn" type="button" id="choosePhotoBtn">Escolher foto</button>
+                <button class="ghost-btn" type="button" id="removePhotoBtn">Remover</button>
+              </div>
+              <div class="photo-help">A foto fica salva neste aparelho e aparece no topo da agenda.</div>
+            </div>
           </article>
         </div>
       </section>
@@ -201,6 +214,8 @@ body.dark{--paper:#18252d;--bg:#101a20;--ink:#dbe5ea;--muted:#98a8b1;--line:#2a3
     <button data-view="conexoes">↗<span>Conexões</span></button>
     <button data-view="configuracoes">⚙<span>Ajustes</span></button>
   </div>
+
+  <input id="photoInput" type="file" accept="image/*" hidden>
 
   <dialog id="eventDialog">
     <form method="dialog" class="dialog-card" id="eventForm">
@@ -420,6 +435,33 @@ $('#themeBtn').onclick=()=>{document.body.classList.toggle('dark');$('#darkToggl
 $('#darkToggle').onchange=e=>{document.body.classList.toggle('dark',e.target.checked);localStorage.setItem('ma-v2-dark',e.target.checked)}
 $('#showSourceToggle').onchange=e=>{state.showSource=e.target.checked;renderUpcoming()}
 $('#saveNameBtn').onclick=()=>{const v=$('#agendaName').value.trim()||'Minha Agenda';document.title=v;document.querySelector('.brand strong').textContent=v;alert('Nome salvo neste aparelho.')}
+function applyProfilePhoto(){
+  const data=localStorage.getItem('ma-v2-photo');
+  const targets=[$('#brandAvatar'),$('#topAvatar')];
+  targets.forEach(el=>{if(!el)return;el.innerHTML=data?`<img src="${data}" alt="Minha foto">`:'M'});
+}
+function openPhotoPicker(){$('#photoInput').click()}
+$('#brandAvatar').onclick=openPhotoPicker;
+$('#topAvatar').onclick=openPhotoPicker;
+$('#choosePhotoBtn').onclick=openPhotoPicker;
+$('#removePhotoBtn').onclick=()=>{localStorage.removeItem('ma-v2-photo');applyProfilePhoto()};
+$('#photoInput').addEventListener('change',e=>{
+  const file=e.target.files?.[0]; if(!file)return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    const img=new Image();
+    img.onload=()=>{
+      const max=500, scale=Math.min(1,max/Math.max(img.width,img.height));
+      const c=document.createElement('canvas'); c.width=Math.max(1,Math.round(img.width*scale)); c.height=Math.max(1,Math.round(img.height*scale));
+      c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+      try{localStorage.setItem('ma-v2-photo',c.toDataURL('image/jpeg',0.82));applyProfilePhoto()}catch(err){alert('Não foi possível salvar esta foto. Tente uma imagem menor.')}
+    };
+    img.src=reader.result;
+  };
+  reader.readAsDataURL(file);
+  e.target.value='';
+});
+applyProfilePhoto();
 if(localStorage.getItem('ma-v2-dark')==='true'){document.body.classList.add('dark');$('#darkToggle').checked=true}
 function escapeHtml(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
 render();
