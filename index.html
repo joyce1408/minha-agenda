@@ -52,7 +52,7 @@ body.dark{--paper:#18252d;--bg:#101a20;--ink:#dbe5ea;--muted:#98a8b1;--line:#2a3
 .hero-planner{display:grid;grid-template-columns:42% 58%;min-height:330px;background:#f8f8fc;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 7px 22px rgba(70,68,110,.07);margin:0 0 22px}.planner-photo{min-height:330px;background:#ececf3}.planner-photo img{width:100%;height:100%;display:block;object-fit:cover}.planner-note{padding:46px 54px;display:flex;flex-direction:column;justify-content:center}.planner-note .eyebrow{color:#716cb3}.planner-note h2{font-family:Georgia,serif;font-weight:500;font-size:36px;line-height:1.2;color:#57529b;margin:12px 0 8px}.planner-note p{font-size:14px;line-height:1.6;color:var(--muted);max-width:420px}.planner-heart{color:#8580c7;font-size:20px}.year-grid{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.year-month{border:1px solid var(--line);border-radius:13px;padding:12px}.year-month h3{margin:0 0 9px;color:var(--navy);font-size:13px}.year-month-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}.year-month-grid span{font-size:9px;text-align:center;color:#707285;padding:4px 0;border-radius:5px}.year-month-grid span.has-event{background:#ecebfa;color:#5e59a1;font-weight:800}.history-wrap{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}.history-card{background:#fff;border:1px solid var(--line);border-radius:15px;padding:15px}.history-card h3{margin:0 0 10px;color:var(--navy);font-size:15px}.history-item{padding:9px 0;border-top:1px solid #eeeef3;font-size:12px;color:var(--muted)}.history-item.done{text-decoration:line-through;opacity:.65}.reminder-actions{display:flex;gap:7px;align-items:center}.complete-btn{border:1px solid var(--line);background:#fff;border-radius:9px;padding:7px 9px;font-size:11px;font-weight:800;color:var(--navy)}
 @media (max-width:720px){.hero-planner{grid-template-columns:1fr}.planner-photo{height:230px;min-height:230px}.planner-note{padding:28px}.planner-note h2{font-size:28px}.year-grid{grid-template-columns:1fr 1fr}.history-wrap{grid-template-columns:1fr}}
   </style>
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="https://accounts.google.com/gsi/client" async defer onload="window.__googleGisLoaded=true"></script>
 </head>
 <body>
   <div class="app-shell">
@@ -563,20 +563,53 @@ $('#testNotificationBtn').onclick=()=>{if('Notification' in window && Notificati
 updateNotificationStatus();
 
 /* Google Calendar integration */
-const googleState={clientId:localStorage.getItem('ma-google-client-id')||'759821438867-7ld71emch596ck9r4rgt7g6uhjfujc71.apps.googleusercontent.com',token:null,tokenClient:null,calendars:[],calendarId:localStorage.getItem('ma-google-calendar-id')||'primary'};
+const googleState={clientId:localStorage.getItem('ma-google-client-id')||'759821438867-7ld71emch596ck9r4rgt7g6uhjfujc71.apps.googleusercontent.com',token:null,tokenClient:null,calendars:[],calendarId:localStorage.getItem('ma-google-calendar-id')||'primary',loading:false};
 function setGoogleStatus(msg){const el=$('#googleStatus');if(el)el.textContent=msg}
-function saveGoogleClientId(){const v=$('#googleClientId')?.value.trim();if(!v)return alert('Cole o Google Client ID primeiro.');localStorage.setItem('ma-google-client-id',v);googleState.clientId=v;setGoogleStatus('Client ID salvo. Agora clique em “Conectar Google”.')}
-function googleReady(){return window.google?.accounts?.oauth2 && googleState.clientId}
+function saveGoogleClientId(){const v=$('#googleClientId')?.value.trim();if(!v)return alert('Cole o Google Client ID primeiro.');localStorage.setItem('ma-google-client-id',v);googleState.clientId=v;googleState.tokenClient=null;localStorage.removeItem('ma-google-connected');setGoogleStatus('Client ID salvo. Agora clique em “Conectar Google”.')}
+function googleReady(){return !!(window.google&&window.google.accounts&&window.google.accounts.oauth2&&googleState.clientId)}
 function initGoogleClient(){
   if(!googleReady())return false;
-  googleState.tokenClient=google.accounts.oauth2.initTokenClient({client_id:googleState.clientId,scope:'https://www.googleapis.com/auth/calendar.events',callback:(resp)=>{if(resp.error){setGoogleStatus('Não foi possível autorizar o Google.');return}googleState.token=resp.access_token;localStorage.setItem('ma-google-connected','1');setGoogleStatus('Google conectado. Sincronizando…');syncGoogle()}});
-  return true;
+  if(googleState.tokenClient)return true;
+  try{
+    googleState.tokenClient=google.accounts.oauth2.initTokenClient({
+      client_id:googleState.clientId,
+      scope:'https://www.googleapis.com/auth/calendar.events',
+      callback:(resp)=>{
+        googleState.loading=false;
+        if(!resp){setGoogleStatus('O Google não retornou uma resposta de autorização.');return}
+        if(resp.error){
+          localStorage.removeItem('ma-google-connected');
+          const detail=resp.error_description?` (${resp.error_description})`:'';
+          if(resp.error==='popup_closed_by_user')setGoogleStatus('A janela do Google foi fechada antes da autorização. Tente novamente e conclua o login.');
+          else if(resp.error==='access_denied')setGoogleStatus('A autorização do Google foi recusada.');
+          else setGoogleStatus(`Não foi possível autorizar o Google${detail}.`);
+          return;
+        }
+        if(!resp.access_token){setGoogleStatus('O Google não devolveu um token de acesso. Tente novamente.');return}
+        googleState.token=resp.access_token;
+        localStorage.setItem('ma-google-connected','1');
+        setGoogleStatus('Google conectado. Sincronizando…');
+        syncGoogle();
+      }
+    });
+    return true;
+  }catch(err){console.error(err);googleState.tokenClient=null;setGoogleStatus('Não foi possível iniciar o login do Google neste navegador.');return false}
 }
 async function googleFetch(url,options={}){if(!googleState.token)throw new Error('Google não conectado.');const r=await fetch(url,{...options,headers:{...(options.headers||{}),Authorization:`Bearer ${googleState.token}`,'Content-Type':'application/json'}});if(!r.ok){let t='';try{t=await r.text()}catch{};throw new Error(`Google API ${r.status}: ${t||r.statusText}`)}return r.status===204?null:r.json()}
 function googleConnect(){
   if(!googleState.clientId){switchView('configuracoes');$('#googleClientId')?.focus();setGoogleStatus('Informe o Google Client ID em Configurações.');return}
-  if(!initGoogleClient()){setGoogleStatus('A biblioteca de login do Google ainda está carregando. Tente novamente em alguns segundos.');return}
-  googleState.tokenClient.requestAccessToken({prompt:googleState.token?'':'consent'});
+  if(googleState.loading){setGoogleStatus('Aguardando a janela de autorização do Google…');return}
+  if(!googleReady()){setGoogleStatus('O login do Google ainda está carregando. Aguarde um instante e toque novamente em “Conectar Google”.');return}
+  if(!initGoogleClient()){return}
+  googleState.loading=true;
+  setGoogleStatus('Abrindo o Google para autorização…');
+  try{
+    googleState.tokenClient.requestAccessToken({prompt:googleState.token?'':'consent'});
+  }catch(err){
+    googleState.loading=false;
+    console.error(err);
+    setGoogleStatus('O navegador bloqueou a janela de login do Google. Toque novamente em “Conectar Google” e permita a janela.');
+  }
 }
 async function loadGoogleCalendars(){
   const data=await googleFetch('https://www.googleapis.com/calendar/v3/users/me/calendarList?minAccessRole=reader&maxResults=250');
@@ -625,7 +658,7 @@ $('#saveGoogleClientBtn').onclick=saveGoogleClientId;
 $('#googleConnectBtn').onclick=googleConnect;
 $('#googleSyncBtn').onclick=()=>{if(!googleState.token)googleConnect();else syncGoogle()};
 $('#googleCalendarSelect').onchange=e=>{googleState.calendarId=e.target.value;localStorage.setItem('ma-google-calendar-id',googleState.calendarId);if(googleState.token)syncGoogle()};
-if(localStorage.getItem('ma-google-connected')==='1')setGoogleStatus('Google autorizado neste aparelho. Clique em Sincronizar se necessário.');
+if(localStorage.getItem('ma-google-connected')==='1')setGoogleStatus('Google autorizado neste aparelho. Toque em “Sincronizar” para atualizar os compromissos.');
 applyProfilePhoto();
 if(localStorage.getItem('ma-v2-dark')==='true'){document.body.classList.add('dark');$('#darkToggle').checked=true}
 function escapeHtml(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
