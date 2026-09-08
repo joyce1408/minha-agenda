@@ -52,7 +52,6 @@ body.dark{--paper:#18252d;--bg:#101a20;--ink:#dbe5ea;--muted:#98a8b1;--line:#2a3
 .hero-planner{display:grid;grid-template-columns:42% 58%;min-height:330px;background:#f8f8fc;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 7px 22px rgba(70,68,110,.07);margin:0 0 22px}.planner-photo{min-height:330px;background:#ececf3}.planner-photo img{width:100%;height:100%;display:block;object-fit:cover}.planner-note{padding:46px 54px;display:flex;flex-direction:column;justify-content:center}.planner-note .eyebrow{color:#716cb3}.planner-note h2{font-family:Georgia,serif;font-weight:500;font-size:36px;line-height:1.2;color:#57529b;margin:12px 0 8px}.planner-note p{font-size:14px;line-height:1.6;color:var(--muted);max-width:420px}.planner-heart{color:#8580c7;font-size:20px}.year-grid{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.year-month{border:1px solid var(--line);border-radius:13px;padding:12px}.year-month h3{margin:0 0 9px;color:var(--navy);font-size:13px}.year-month-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}.year-month-grid span{font-size:9px;text-align:center;color:#707285;padding:4px 0;border-radius:5px}.year-month-grid span.has-event{background:#ecebfa;color:#5e59a1;font-weight:800}.history-wrap{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}.history-card{background:#fff;border:1px solid var(--line);border-radius:15px;padding:15px}.history-card h3{margin:0 0 10px;color:var(--navy);font-size:15px}.history-item{padding:9px 0;border-top:1px solid #eeeef3;font-size:12px;color:var(--muted)}.history-item.done{text-decoration:line-through;opacity:.65}.reminder-actions{display:flex;gap:7px;align-items:center}.complete-btn{border:1px solid var(--line);background:#fff;border-radius:9px;padding:7px 9px;font-size:11px;font-weight:800;color:var(--navy)}
 @media (max-width:720px){.hero-planner{grid-template-columns:1fr}.planner-photo{height:230px;min-height:230px}.planner-note{padding:28px}.planner-note h2{font-size:28px}.year-grid{grid-template-columns:1fr 1fr}.history-wrap{grid-template-columns:1fr}}
   </style>
-  <script src="https://accounts.google.com/gsi/client" async defer onload="window.__googleGisLoaded=true"></script>
 </head>
 <body>
   <div class="app-shell">
@@ -69,7 +68,6 @@ body.dark{--paper:#18252d;--bg:#101a20;--ink:#dbe5ea;--muted:#98a8b1;--line:#2a3
         <button class="nav-item active" data-view="agenda">◷ <span>Agenda</span></button>
         <button class="nav-item" data-view="tarefas">✓ <span>Tarefas</span></button>
         <button class="nav-item" data-view="lembretes">🔔 <span>Lembretes</span></button>
-        <button class="nav-item" data-view="conexoes">↗ <span>Conexões</span></button>
         <button class="nav-item" data-view="configuracoes">⚙ <span>Configurações</span></button>
       </nav>
 
@@ -155,31 +153,6 @@ body.dark{--paper:#18252d;--bg:#101a20;--ink:#dbe5ea;--muted:#98a8b1;--line:#2a3
         </div>
         <div id="reminderList" class="cards"></div>
       </section>
-
-      <section id="conexoesView" class="view hidden">
-        <div class="connection-grid">
-          <article class="connection-card">
-            <div class="source-icon apple"></div>
-            <div><h3>Apple</h3><p>Calendários e Lembretes do ecossistema Apple.</p></div>
-            <button class="secondary-btn">Preparar conexão</button>
-          </article>
-          <article class="connection-card">
-            <div class="source-icon google">G</div>
-            <div><h3>Google Agenda</h3><p>Eventos e calendário Google.</p></div>
-            <button class="secondary-btn" id="googleConnectBtn">Conectar Google</button>
-          </article>
-          <article class="connection-card">
-            <div class="source-icon microsoft">M</div>
-            <div><h3>Microsoft 365</h3><p>Outlook e reuniões do Teams corporativo.</p></div>
-            <button class="secondary-btn">Preparar conexão</button>
-          </article>
-        </div>
-        <div class="info-box">
-          <strong>Arquitetura da V2</strong>
-          <p>Os conectores ficam isolados da interface. Nesta primeira versão, o painel é funcional localmente e já está preparado para receber autenticação e sincronização oficiais sem expor segredos no código público.</p>
-        </div>
-      </section>
-
       <section id="configuracoesView" class="view hidden">
         <div class="settings-grid">
           <article class="panel">
@@ -202,18 +175,6 @@ body.dark{--paper:#18252d;--bg:#101a20;--ink:#dbe5ea;--muted:#98a8b1;--line:#2a3
             </div>
           </article>
           <article class="panel">
-            <h3>Google Agenda</h3>
-            <p class="muted">Conecte sua conta Google para trazer seus compromissos e, depois, criar compromissos diretamente no Google Agenda.</p>
-            <label class="field"><span>Google Client ID</span><input id="googleClientId" placeholder="...apps.googleusercontent.com"></label>
-            <div class="photo-help">Este identificador não é uma senha. Ele será usado pelo navegador para iniciar o login do Google.</div>
-            <div class="photo-actions" style="margin-top:10px">
-              <button class="secondary-btn" type="button" id="saveGoogleClientBtn">Salvar Client ID</button>
-              <button class="ghost-btn" type="button" id="googleSyncBtn">Sincronizar</button>
-            </div>
-            <div id="googleStatus" class="photo-help" style="margin-top:10px">Google não conectado.</div>
-            <select id="googleCalendarSelect" style="display:none;margin-top:10px;width:100%"></select>
-          </article>
-          <article class="panel">
             <h3>Notificações</h3>
             <p class="muted">Permita notificações para receber avisos dos compromissos enquanto a agenda estiver aberta.</p>
             <div class="photo-actions">
@@ -225,7 +186,7 @@ body.dark{--paper:#18252d;--bg:#101a20;--ink:#dbe5ea;--muted:#98a8b1;--line:#2a3
         </div>
       </section>
 
-      <footer>Minha Agenda V2 • protótipo local • preparado para integrações oficiais</footer>
+      <footer>Minha Agenda V2 • agenda pessoal local • sem integrações externas</footer>
     </main>
   </div>
 
@@ -233,7 +194,6 @@ body.dark{--paper:#18252d;--bg:#101a20;--ink:#dbe5ea;--muted:#98a8b1;--line:#2a3
     <button class="active" data-view="agenda">◷<span>Agenda</span></button>
     <button data-view="tarefas">✓<span>Tarefas</span></button>
     <button data-view="lembretes">🔔<span>Lembretes</span></button>
-    <button data-view="conexoes">↗<span>Conexões</span></button>
     <button data-view="configuracoes">⚙<span>Ajustes</span></button>
   </div>
 
@@ -251,14 +211,7 @@ body.dark{--paper:#18252d;--bg:#101a20;--ink:#dbe5ea;--muted:#98a8b1;--line:#2a3
           <label>Hora<input id="eventTime" type="time"></label>
         </div>
         <label>Local<input id="eventLocation" maxlength="100" placeholder="Opcional"></label>
-        <label>Origem
-          <select id="eventSource">
-            <option value="local">Minha Agenda</option>
-            <option value="apple">Apple</option>
-            <option value="google">Google</option>
-            <option value="microsoft">Outlook / Teams</option>
-          </select>
-        </label>
+        <label>Origem<select id="eventSource"><option value="local">Minha Agenda</option></select></label>
         <label class="setting-row"><span>Me avisar</span><input id="eventReminder" type="checkbox" checked></label>
       </div>
       <div class="dialog-actions">
@@ -279,9 +232,9 @@ const state = {
   filter: 'all',
   showSource: true,
   events: savedEvents || [
-    {id:1,title:'Reunião financeira',date:isoDate(new Date()),time:'09:00',source:'microsoft',location:'Teams',done:false,reminder:true},
-    {id:2,title:'Consulta / compromisso',date:isoDate(addDays(new Date(),1)),time:'14:30',source:'apple',location:'',done:false,reminder:true},
-    {id:3,title:'Planejamento semanal',date:isoDate(addDays(new Date(),2)),time:'19:00',source:'google',location:'',done:false,reminder:false},
+    {id:1,title:'Reunião financeira',date:isoDate(new Date()),time:'09:00',source:'local',location:'',done:false,reminder:true},
+    {id:2,title:'Consulta / compromisso',date:isoDate(addDays(new Date(),1)),time:'14:30',source:'local',location:'',done:false,reminder:true},
+    {id:3,title:'Planejamento semanal',date:isoDate(addDays(new Date(),2)),time:'19:00',source:'local',location:'',done:false,reminder:false},
     {id:4,title:'Comprar materiais',date:isoDate(new Date()),time:'18:00',source:'local',location:'',done:false,reminder:true}
   ],
   tasks: savedTasks || [
@@ -294,9 +247,19 @@ const state = {
   ]).map(r => ({...r, done: Boolean(r.done)}))
 };
 
+// Agenda independente: eventos antigos de Apple/Google/Microsoft passam a ser locais.
+state.events = state.events.map(e => ({
+  ...e,
+  source: 'local',
+  googleId: undefined
+}));
+localStorage.removeItem('ma-google-client-id');
+localStorage.removeItem('ma-google-calendar-id');
+localStorage.removeItem('ma-google-connected');
+
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
-const sourceLabel = {apple:'Apple', google:'Google', microsoft:'Outlook / Teams', local:'Minha Agenda'};
+const sourceLabel = {local:'Minha Agenda'};
 
 function isoDate(d){ return new Date(d.getFullYear(),d.getMonth(),d.getDate()).toISOString().slice(0,10) }
 function addDays(d,n){ const x=new Date(d); x.setDate(x.getDate()+n); return x }
@@ -416,7 +379,7 @@ window.convertReminder=id=>{
 function switchView(view){
   $$('.view').forEach(v=>v.classList.add('hidden')); $(`#${view}View`).classList.remove('hidden');
   $$('.nav-item,.mobile-bar button').forEach(b=>b.classList.toggle('active',b.dataset.view===view));
-  const titles={agenda:['Agenda','Tudo organizado em um só lugar.'],tarefas:['Tarefas','Atividades que você precisa concluir.'],lembretes:['Lembretes','Anotações rápidas para não esquecer.'],conexoes:['Conexões','Prepare as fontes que formarão sua agenda unificada.'],configuracoes:['Configurações','Personalize a sua experiência.']};
+  const titles={agenda:['Agenda','Tudo organizado em um só lugar.'],tarefas:['Tarefas','Atividades que você precisa concluir.'],lembretes:['Lembretes','Anotações rápidas para não esquecer.'],configuracoes:['Configurações','Personalize a sua experiência.']};
   $('#pageTitle').textContent=titles[view][0]; $('#pageSubtitle').textContent=titles[view][1];
 }
 $$('[data-view]').forEach(b=>b.addEventListener('click',()=>switchView(b.dataset.view)));
@@ -465,36 +428,25 @@ window.openEventEditor=id=>{
   $('#eventLocation').value=ev.location||''; $('#eventSource').value=ev.source||'local'; $('#eventReminder').checked=ev.reminder!==false;
   $('#eventDialog').showModal();
 };
-window.deleteEvent=async id=>{
+window.deleteEvent=id=>{
   const ev=state.events.find(x=>String(x.id)===String(id)); if(!ev)return;
   if(!confirm(`Excluir o compromisso "${ev.title}"?`))return;
-  try{
-    if(ev.googleId && googleState.token) await deleteGoogleEvent(ev);
-    state.events=state.events.filter(x=>String(x.id)!==String(id)); save(); render();
-  }catch(err){console.error(err);alert('Não consegui excluir no Google Agenda. O compromisso foi mantido.');}
+  state.events=state.events.filter(x=>String(x.id)!==String(id)); save(); render();
 };
 $('#deleteEventBtn').onclick=async()=>{const id=$('#eventDialog').dataset.editingId;if(id){$('#eventDialog').close();await deleteEvent(id)}};
 $('#closeDialog').onclick=()=>$('#eventDialog').close();
 $('#cancelEvent').onclick=()=>$('#eventDialog').close();
-$('#eventForm').addEventListener('submit',async e=>{
+$('#eventForm').addEventListener('submit',e=>{
   e.preventDefault();
   const editingId=$('#eventDialog').dataset.editingId||'';
   const reminderId=Number($('#eventDialog').dataset.reminderId||0);
-  const payload={title:$('#eventTitle').value.trim(),date:$('#eventDate').value,time:$('#eventTime').value,location:$('#eventLocation').value.trim(),source:$('#eventSource').value,reminder:$('#eventReminder').checked};
+  const payload={title:$('#eventTitle').value.trim(),date:$('#eventDate').value,time:$('#eventTime').value,location:$('#eventLocation').value.trim(),source:'local',reminder:$('#eventReminder').checked};
   if(editingId){
     const ev=state.events.find(x=>String(x.id)===String(editingId)); if(!ev)return;
-    try{
-      if(ev.googleId && googleState.token){const ge=await updateGoogleEvent(ev,payload);ev.googleId=ge.id;setGoogleStatus('Compromisso atualizado no Google Agenda.');}
-      Object.assign(ev,payload);
-      save(); $('#eventDialog').close(); resetEventDialog(); render();
-    }catch(err){console.error(err);alert('Não consegui atualizar o compromisso no Google Agenda. Nada foi alterado.');}
-    return;
+    Object.assign(ev,payload);
+  }else{
+    state.events.push({id:Date.now(),...payload,done:false});
   }
-  const newEvent={id:Date.now(),...payload,done:false};
-  if(newEvent.source==='google' && googleState.token){
-    try{const ge=await createGoogleEvent(newEvent);newEvent.googleId=ge.id;setGoogleStatus('Compromisso criado no Google Agenda.')}catch(err){console.error(err);alert('Não consegui criar no Google Agenda. O compromisso não foi criado localmente.');return}
-  }
-  state.events.push(newEvent);
   if(reminderId){const r=state.reminders.find(x=>x.id===reminderId);if(r)r.done=true;}
   save(); e.target.reset(); resetEventDialog(); $('#eventDialog').close(); render(); scheduleNotifications();
 });
@@ -562,113 +514,6 @@ $('#enableNotificationsBtn').onclick=enableNotifications;
 $('#testNotificationBtn').onclick=()=>{if('Notification' in window && Notification.permission==='granted')showAgendaNotification({id:'test',title:'Teste de notificação da Minha Agenda',time:''});else enableNotifications()};
 updateNotificationStatus();
 
-/* Google Calendar integration */
-const googleState={clientId:localStorage.getItem('ma-google-client-id')||'759821438867-7ld71emch596ck9r4rgt7g6uhjfujc71.apps.googleusercontent.com',token:null,tokenClient:null,calendars:[],calendarId:localStorage.getItem('ma-google-calendar-id')||'primary',loading:false};
-function setGoogleStatus(msg){const el=$('#googleStatus');if(el)el.textContent=msg}
-function saveGoogleClientId(){const v=$('#googleClientId')?.value.trim();if(!v)return alert('Cole o Google Client ID primeiro.');localStorage.setItem('ma-google-client-id',v);googleState.clientId=v;googleState.tokenClient=null;localStorage.removeItem('ma-google-connected');setGoogleStatus('Client ID salvo. Agora clique em “Conectar Google”.')}
-function googleReady(){return !!(window.google&&window.google.accounts&&window.google.accounts.oauth2&&googleState.clientId)}
-function initGoogleClient(){
-  if(!googleReady())return false;
-  if(googleState.tokenClient)return true;
-  try{
-    googleState.tokenClient=google.accounts.oauth2.initTokenClient({
-      client_id:googleState.clientId,
-      scope:'https://www.googleapis.com/auth/calendar.events',
-      include_granted_scopes:true,
-      callback:(resp)=>{
-        googleState.loading=false;
-        if(!resp){setGoogleStatus('O Google não retornou uma resposta de autorização.');return}
-        if(resp.error){
-          localStorage.removeItem('ma-google-connected');
-          const detail=resp.error_description?` (${resp.error_description})`:'';
-          if(resp.error==='popup_closed_by_user')setGoogleStatus('A janela do Google foi fechada antes da autorização. Tente novamente e conclua o login.');
-          else if(resp.error==='access_denied')setGoogleStatus('A autorização do Google foi recusada.');
-          else setGoogleStatus(`Não foi possível autorizar o Google${detail}.`);
-          return;
-        }
-        if(!resp.access_token){setGoogleStatus('O Google não devolveu um token de acesso. Tente novamente.');return}
-        googleState.token=resp.access_token;
-        localStorage.setItem('ma-google-connected','1');
-        setGoogleStatus('Google conectado. Sincronizando…');
-        syncGoogle();
-      },
-      error_callback:(err)=>{
-        googleState.loading=false;
-        googleState.tokenClient=null;
-        localStorage.removeItem('ma-google-connected');
-        const type=err?.type||'unknown';
-        if(type==='popup_failed_to_open') setGoogleStatus('O navegador bloqueou a janela do Google. Permita pop-ups para este site e tente novamente.');
-        else if(type==='popup_closed') setGoogleStatus('A janela do Google fechou antes de devolver a autorização. Isso pode acontecer por bloqueio do navegador/rede. Tente novamente; se repetir, abra a agenda no Chrome e permita pop-ups.');
-        else setGoogleStatus(`O Google interrompeu a autorização (${type}). Tente novamente.`);
-      }
-    });
-    return true;
-  }catch(err){console.error(err);googleState.tokenClient=null;setGoogleStatus('Não foi possível iniciar o login do Google neste navegador.');return false}
-}
-async function googleFetch(url,options={}){if(!googleState.token)throw new Error('Google não conectado.');const r=await fetch(url,{...options,headers:{...(options.headers||{}),Authorization:`Bearer ${googleState.token}`,'Content-Type':'application/json'}});if(!r.ok){let t='';try{t=await r.text()}catch{};throw new Error(`Google API ${r.status}: ${t||r.statusText}`)}return r.status===204?null:r.json()}
-function googleConnect(){
-  if(!googleState.clientId){switchView('configuracoes');$('#googleClientId')?.focus();setGoogleStatus('Informe o Google Client ID em Configurações.');return}
-  if(googleState.loading){setGoogleStatus('Aguardando a janela de autorização do Google…');return}
-  if(!googleReady()){setGoogleStatus('O login do Google ainda está carregando. Aguarde um instante e toque novamente em “Conectar Google”.');return}
-  if(!initGoogleClient()){return}
-  googleState.loading=true;
-  setGoogleStatus('Abrindo o Google para autorização…');
-  try{
-    googleState.tokenClient.requestAccessToken({prompt:googleState.token?'':'consent'});
-  }catch(err){
-    googleState.loading=false;
-    console.error(err);
-    setGoogleStatus('O navegador bloqueou a janela de login do Google. Toque novamente em “Conectar Google” e permita a janela.');
-  }
-}
-async function loadGoogleCalendars(){
-  const data=await googleFetch('https://www.googleapis.com/calendar/v3/users/me/calendarList?minAccessRole=reader&maxResults=250');
-  googleState.calendars=data.items||[];
-  const sel=$('#googleCalendarSelect');
-  if(sel){sel.innerHTML=googleState.calendars.filter(c=>c.accessRole!=='freeBusyReader').map(c=>`<option value="${escapeHtml(c.id)}">${escapeHtml(c.summary||c.id)}</option>`).join('');if(googleState.calendars.some(c=>c.id===googleState.calendarId))sel.value=googleState.calendarId;else if(googleState.calendars[0]){googleState.calendarId=googleState.calendars[0].id;sel.value=googleState.calendarId;localStorage.setItem('ma-google-calendar-id',googleState.calendarId)}sel.style.display=googleState.calendars.length?'block':'none'}
-}
-function googleEventToLocal(ev){
-  if(!ev.start)return null;
-  const start=ev.start.dateTime?new Date(ev.start.dateTime):new Date(`${ev.start.date}T00:00:00`);
-  const end=ev.end?.dateTime?new Date(ev.end.dateTime):null;
-  const date=isoDate(start); const time=ev.start.dateTime?`${pad(start.getHours())}:${pad(start.getMinutes())}`:'';
-  return {id:`g-${ev.id}`,googleId:ev.id,title:ev.summary||'(Sem título)',date,time,source:'google',location:ev.location||'',done:ev.status==='cancelled',reminder:true,allDay:!ev.start.dateTime,endDate:end?isoDate(end):date};
-}
-async function syncGoogle(){
-  try{
-    await loadGoogleCalendars();
-    const min=new Date(); min.setMonth(min.getMonth()-1); const max=new Date(); max.setFullYear(max.getFullYear()+1);
-    const data=await googleFetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(googleState.calendarId)}/events?singleEvents=true&orderBy=startTime&timeMin=${encodeURIComponent(min.toISOString())}&timeMax=${encodeURIComponent(max.toISOString())}&maxResults=2500`);
-    const incoming=(data.items||[]).map(googleEventToLocal).filter(Boolean);
-    state.events=state.events.filter(e=>!e.googleId);
-    state.events.push(...incoming); save(); render(); scheduleNotifications(); setGoogleStatus(`Google conectado: ${incoming.length} evento(s) sincronizado(s).`);
-  }catch(err){console.error(err);const msg=String(err?.message||err);setGoogleStatus(msg.startsWith('Google API')?`Erro na API do Google: ${msg.replace(/^Google API \d+: /,'').slice(0,180)}`:'Erro ao sincronizar Google. Verifique a autorização e o Client ID.');}
-}
-async function updateGoogleEvent(existing,payload){
-  if(!existing.googleId) return existing;
-  if(!payload.time){throw new Error('Eventos do Google precisam de horário para esta versão.');}
-  const d=new Date(`${payload.date}T${payload.time}:00`); const end=new Date(d.getTime()+60*60*1000);
-  const body={summary:payload.title,location:payload.location||undefined,start:{dateTime:d.toISOString()},end:{dateTime:end.toISOString()},reminders:payload.reminder?{useDefault:false,overrides:[{method:'popup',minutes:10}]}:{useDefault:false,overrides:[]}};
-  return await googleFetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(googleState.calendarId)}/events/${encodeURIComponent(existing.googleId)}`,{method:'PUT',body:JSON.stringify(body)});
-}
-async function deleteGoogleEvent(existing){
-  if(!existing.googleId)return;
-  await googleFetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(googleState.calendarId)}/events/${encodeURIComponent(existing.googleId)}`,{method:'DELETE'});
-}
-async function createGoogleEvent(localEvent){
-  const start=localEvent.time?`${localEvent.date}T${localEvent.time}:00`:null;
-  if(!start)return null;
-  const d=new Date(start); const end=new Date(d.getTime()+60*60*1000);
-  const body={summary:localEvent.title,location:localEvent.location||undefined,start:{dateTime:d.toISOString()},end:{dateTime:end.toISOString()},reminders:localEvent.reminder?{useDefault:false,overrides:[{method:'popup',minutes:10}]}:{useDefault:false,overrides:[]}};
-  const ev=await googleFetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(googleState.calendarId)}/events`,{method:'POST',body:JSON.stringify(body)});
-  return ev;
-}
-$('#googleClientId').value=googleState.clientId;
-$('#saveGoogleClientBtn').onclick=saveGoogleClientId;
-$('#googleConnectBtn').onclick=googleConnect;
-$('#googleSyncBtn').onclick=()=>{if(!googleState.token)googleConnect();else syncGoogle()};
-$('#googleCalendarSelect').onchange=e=>{googleState.calendarId=e.target.value;localStorage.setItem('ma-google-calendar-id',googleState.calendarId);if(googleState.token)syncGoogle()};
-if(localStorage.getItem('ma-google-connected')==='1')setGoogleStatus('Google autorizado neste aparelho. Toque em “Sincronizar” para atualizar os compromissos.');
 applyProfilePhoto();
 if(localStorage.getItem('ma-v2-dark')==='true'){document.body.classList.add('dark');$('#darkToggle').checked=true}
 function escapeHtml(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}

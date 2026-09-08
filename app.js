@@ -8,9 +8,9 @@ const state = {
   filter: 'all',
   showSource: true,
   events: savedEvents || [
-    {id:1,title:'Reunião financeira',date:isoDate(new Date()),time:'09:00',source:'microsoft',location:'Teams',done:false,reminder:true},
-    {id:2,title:'Consulta / compromisso',date:isoDate(addDays(new Date(),1)),time:'14:30',source:'apple',location:'',done:false,reminder:true},
-    {id:3,title:'Planejamento semanal',date:isoDate(addDays(new Date(),2)),time:'19:00',source:'google',location:'',done:false,reminder:false},
+    {id:1,title:'Reunião financeira',date:isoDate(new Date()),time:'09:00',source:'local',location:'',done:false,reminder:true},
+    {id:2,title:'Consulta / compromisso',date:isoDate(addDays(new Date(),1)),time:'14:30',source:'local',location:'',done:false,reminder:true},
+    {id:3,title:'Planejamento semanal',date:isoDate(addDays(new Date(),2)),time:'19:00',source:'local',location:'',done:false,reminder:false},
     {id:4,title:'Comprar materiais',date:isoDate(new Date()),time:'18:00',source:'local',location:'',done:false,reminder:true}
   ],
   tasks: savedTasks || [
@@ -23,9 +23,19 @@ const state = {
   ]).map(r => ({...r, done: Boolean(r.done)}))
 };
 
+// Agenda independente: eventos antigos de Apple/Google/Microsoft passam a ser locais.
+state.events = state.events.map(e => ({
+  ...e,
+  source: 'local',
+  googleId: undefined
+}));
+localStorage.removeItem('ma-google-client-id');
+localStorage.removeItem('ma-google-calendar-id');
+localStorage.removeItem('ma-google-connected');
+
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
-const sourceLabel = {apple:'Apple', google:'Google', microsoft:'Outlook / Teams', local:'Minha Agenda'};
+const sourceLabel = {local:'Minha Agenda'};
 
 function isoDate(d){ return new Date(d.getFullYear(),d.getMonth(),d.getDate()).toISOString().slice(0,10) }
 function addDays(d,n){ const x=new Date(d); x.setDate(x.getDate()+n); return x }
@@ -72,7 +82,7 @@ function renderDay(){
   }).join('')}</div></div>`;
 }
 function eventChip(e){
-  return `<div class="event-chip ${sourceClass(e.source)} ${e.done?'done':''}"><strong>${e.time||'Sem horário'} · ${escapeHtml(e.title)}</strong><small>${e.location?escapeHtml(e.location)+' · ':''}${sourceLabel[e.source]}</small></div>`
+  return `<div class="event-chip ${sourceClass(e.source)} ${e.done?'done':''}" onclick='openEventEditor(${JSON.stringify(String(e.id))})' role="button" tabindex="0"><strong>${e.time||'Sem horário'} · ${escapeHtml(e.title)}</strong><small>${e.location?escapeHtml(e.location)+' · ':''}${sourceLabel[e.source]}</small></div>`
 }
 function startOfWeek(d){const x=new Date(d); const day=x.getDay(); x.setDate(x.getDate()-(day===0?6:day-1)); return x}
 function renderWeek(){
@@ -108,10 +118,10 @@ function renderYear(){
 
 function renderUpcoming(){
   const nowKey=isoDate(new Date());
-  const list=[...state.events].filter(e=>e.date>=nowKey && !e.done).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time)).slice(0,15);
-  $('#upcomingList').innerHTML=list.length?list.map(e=>`<article class="agenda-card"><div class="time-col"><strong>${e.time||'—'}</strong><span>${fmtShort(e.date)}</span></div><div class="card-main"><h3>${escapeHtml(e.title)}</h3><p>${e.location?escapeHtml(e.location):'Sem local'}</p></div><button class="source-badge ${e.source}" onclick="toggleEvent(${e.id})">${state.showSource?sourceLabel[e.source]:'○'}</button></article>`).join(''):'<div class="panel muted">Nenhum compromisso encontrado.</div>';
+  const list=[...state.events].filter(e=>e.date>=nowKey && !e.done).sort((a,b)=>(a.date+(a.time||'99:99')).localeCompare(b.date+(b.time||'99:99'))).slice(0,15);
+  $('#upcomingList').innerHTML=list.length?list.map(e=>`<article class="agenda-card"><div class="time-col"><strong>${e.time||'—'}</strong><span>${fmtShort(e.date)}</span></div><div class="card-main"><h3>${escapeHtml(e.title)}</h3><p>${e.location?escapeHtml(e.location):'Sem local'}</p></div><button class="source-badge ${e.source}" type="button" onclick='toggleEvent(${JSON.stringify(String(e.id))})'>${state.showSource?sourceLabel[e.source]:'○'}</button><div class="event-actions"><button class="icon-btn" type="button" onclick='openEventEditor(${JSON.stringify(String(e.id))})' title="Editar" aria-label="Editar">✎</button><button class="icon-btn danger" type="button" onclick='deleteEvent(${JSON.stringify(String(e.id))})' title="Excluir" aria-label="Excluir">×</button></div></article>`).join(''):'<div class="panel muted">Nenhum compromisso encontrado.</div>';
 }
-window.toggleEvent=id=>{const e=state.events.find(x=>x.id===id); if(e){e.done=!e.done;save();render()}}
+window.toggleEvent=id=>{const e=state.events.find(x=>String(x.id)===String(id)); if(e){e.done=!e.done;save();render()}}
 
 function renderTasks(){
   const pending=state.tasks.filter(t=>!t.done), completed=state.tasks.filter(t=>t.done);
@@ -120,7 +130,7 @@ function renderTasks(){
 function taskCard(t){
   return `<article class="task-card"><button class="check" onclick="toggleTask(${t.id})" aria-label="Concluir tarefa"></button><div><div class="task-title">${escapeHtml(t.title)}</div><div class="task-meta">${fmtShort(t.date)}</div></div></article>`
 }
-window.toggleTask=id=>{const t=state.tasks.find(x=>x.id===id); if(t){t.done=!t.done;save();render()}}
+window.toggleTask=id=>{const t=state.tasks.find(x=>String(x.id)===String(id)); if(t){t.done=!t.done;save();render()}}
 
 function renderReminders(){
   const pending=state.reminders.filter(r=>!r.done), completed=state.reminders.filter(r=>r.done);
@@ -128,10 +138,10 @@ function renderReminders(){
   const historyHtml=completed.length?`<div class="history-card standalone-history"><h3>Lembretes concluídos</h3>${completed.map(r=>`<div class="history-item done"><div><strong>${escapeHtml(r.text)}</strong><div>Concluído</div></div><button class="complete-btn" onclick="toggleReminder(${r.id})">Reabrir</button></div>`).join('')}</div>`:'';
   $('#reminderList').innerHTML=`<div class="cards">${pendingHtml}</div>${historyHtml}`;
 }
-window.toggleReminder=id=>{const r=state.reminders.find(x=>x.id===id);if(r){r.done=!r.done;save();render()}}
+window.toggleReminder=id=>{const r=state.reminders.find(x=>String(x.id)===String(id));if(r){r.done=!r.done;save();render()}}
 window.removeReminder=id=>{state.reminders=state.reminders.filter(r=>r.id!==id);save();render()}
 window.convertReminder=id=>{
-  const r=state.reminders.find(x=>x.id===id); if(!r)return;
+  const r=state.reminders.find(x=>String(x.id)===String(id)); if(!r)return;
   $('#eventTitle').value=r.text;
   $('#eventDate').value=isoDate(state.date);
   $('#eventTime').value='';
@@ -145,7 +155,7 @@ window.convertReminder=id=>{
 function switchView(view){
   $$('.view').forEach(v=>v.classList.add('hidden')); $(`#${view}View`).classList.remove('hidden');
   $$('.nav-item,.mobile-bar button').forEach(b=>b.classList.toggle('active',b.dataset.view===view));
-  const titles={agenda:['Agenda','Tudo organizado em um só lugar.'],tarefas:['Tarefas','Atividades que você precisa concluir.'],lembretes:['Lembretes','Anotações rápidas para não esquecer.'],conexoes:['Conexões','Prepare as fontes que formarão sua agenda unificada.'],configuracoes:['Configurações','Personalize a sua experiência.']};
+  const titles={agenda:['Agenda','Tudo organizado em um só lugar.'],tarefas:['Tarefas','Atividades que você precisa concluir.'],lembretes:['Lembretes','Anotações rápidas para não esquecer.'],configuracoes:['Configurações','Personalize a sua experiência.']};
   $('#pageTitle').textContent=titles[view][0]; $('#pageSubtitle').textContent=titles[view][1];
 }
 $$('[data-view]').forEach(b=>b.addEventListener('click',()=>switchView(b.dataset.view)));
@@ -171,21 +181,117 @@ $('#prevDate').onclick=()=>{state.date=addDays(state.date,state.calendarView==='
 $('#nextDate').onclick=()=>{state.date=addDays(state.date,state.calendarView==='month'?new Date(state.date.getFullYear(),state.date.getMonth()+1,0).getDate():state.calendarView==='year'?365:state.calendarView==='week'?7:1);render()};
 $('#todayBtn').onclick=()=>{state.date=new Date();render()};
 $('#clearCompleted').onclick=()=>{state.events=state.events.filter(e=>!e.done);save();render()};
-$('#newEventBtn').onclick=()=>{ $('#eventDialog').dataset.reminderId=''; $('#eventDate').value=isoDate(state.date); $('#eventForm').reset(); $('#eventDate').value=isoDate(state.date); $('#eventDialog').showModal() };
+function resetEventDialog(){
+  $('#eventDialog').dataset.reminderId='';
+  $('#eventDialog').dataset.editingId='';
+  $('#eventDialogEyebrow').textContent='NOVO COMPROMISSO';
+  $('#eventDialogTitle').textContent='Adicionar à minha agenda';
+  $('#saveEventBtn').textContent='Salvar compromisso';
+  $('#deleteEventBtn').style.display='none';
+  $('#eventForm').reset();
+  $('#eventDate').value=isoDate(state.date);
+  $('#eventReminder').checked=true;
+}
+$('#newEventBtn').onclick=()=>{resetEventDialog();$('#eventDialog').showModal()};
+window.openEventEditor=id=>{
+  const ev=state.events.find(x=>String(x.id)===String(id)); if(!ev)return;
+  $('#eventDialog').dataset.editingId=String(ev.id); $('#eventDialog').dataset.reminderId='';
+  $('#eventDialogEyebrow').textContent='EDITAR COMPROMISSO';
+  $('#eventDialogTitle').textContent='Editar compromisso';
+  $('#saveEventBtn').textContent='Salvar alterações';
+  $('#deleteEventBtn').style.display='inline-flex';
+  $('#eventTitle').value=ev.title||''; $('#eventDate').value=ev.date||isoDate(state.date); $('#eventTime').value=ev.time||'';
+  $('#eventLocation').value=ev.location||''; $('#eventSource').value=ev.source||'local'; $('#eventReminder').checked=ev.reminder!==false;
+  $('#eventDialog').showModal();
+};
+window.deleteEvent=id=>{
+  const ev=state.events.find(x=>String(x.id)===String(id)); if(!ev)return;
+  if(!confirm(`Excluir o compromisso "${ev.title}"?`))return;
+  state.events=state.events.filter(x=>String(x.id)!==String(id)); save(); render();
+};
+$('#deleteEventBtn').onclick=async()=>{const id=$('#eventDialog').dataset.editingId;if(id){$('#eventDialog').close();await deleteEvent(id)}};
 $('#closeDialog').onclick=()=>$('#eventDialog').close();
 $('#cancelEvent').onclick=()=>$('#eventDialog').close();
 $('#eventForm').addEventListener('submit',e=>{
   e.preventDefault();
+  const editingId=$('#eventDialog').dataset.editingId||'';
   const reminderId=Number($('#eventDialog').dataset.reminderId||0);
-  state.events.push({id:Date.now(),title:$('#eventTitle').value.trim(),date:$('#eventDate').value,time:$('#eventTime').value,location:$('#eventLocation').value.trim(),source:$('#eventSource').value,done:false,reminder:$('#eventReminder').checked});
+  const payload={title:$('#eventTitle').value.trim(),date:$('#eventDate').value,time:$('#eventTime').value,location:$('#eventLocation').value.trim(),source:'local',reminder:$('#eventReminder').checked};
+  if(editingId){
+    const ev=state.events.find(x=>String(x.id)===String(editingId)); if(!ev)return;
+    Object.assign(ev,payload);
+  }else{
+    state.events.push({id:Date.now(),...payload,done:false});
+  }
   if(reminderId){const r=state.reminders.find(x=>x.id===reminderId);if(r)r.done=true;}
-  save(); e.target.reset(); $('#eventDialog').dataset.reminderId=''; $('#eventDialog').close(); render();
+  save(); e.target.reset(); resetEventDialog(); $('#eventDialog').close(); render(); scheduleNotifications();
 });
 $('#addReminderBtn').onclick=()=>{const v=$('#quickReminder').value.trim();if(!v)return;state.reminders.push({id:Date.now(),text:v,done:false});$('#quickReminder').value='';save();render()};
 $('#themeBtn').onclick=()=>{document.body.classList.toggle('dark');$('#darkToggle').checked=document.body.classList.contains('dark');localStorage.setItem('ma-v2-dark',document.body.classList.contains('dark'))}
 $('#darkToggle').onchange=e=>{document.body.classList.toggle('dark',e.target.checked);localStorage.setItem('ma-v2-dark',e.target.checked)}
 $('#showSourceToggle').onchange=e=>{state.showSource=e.target.checked;renderUpcoming()}
 $('#saveNameBtn').onclick=()=>{const v=$('#agendaName').value.trim()||'Minha Agenda';document.title=v;document.querySelector('.brand strong').textContent=v;alert('Nome salvo neste aparelho.')}
+function applyProfilePhoto(){
+  const data=localStorage.getItem('ma-v2-photo');
+  const targets=[$('#brandAvatar'),$('#topAvatar')];
+  targets.forEach(el=>{if(!el)return;el.innerHTML=data?`<img src="${data}" alt="Minha foto">`:'＋'});
+}
+function openPhotoPicker(){$('#photoInput').click()}
+$('#brandAvatar').onclick=openPhotoPicker;
+$('#topAvatar').onclick=openPhotoPicker;
+$('#choosePhotoBtn').onclick=openPhotoPicker;
+$('#removePhotoBtn').onclick=()=>{localStorage.removeItem('ma-v2-photo');applyProfilePhoto()};
+$('#photoInput').addEventListener('change',e=>{
+  const file=e.target.files?.[0]; if(!file)return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    const img=new Image();
+    img.onload=()=>{
+      const max=500, scale=Math.min(1,max/Math.max(img.width,img.height));
+      const c=document.createElement('canvas'); c.width=Math.max(1,Math.round(img.width*scale)); c.height=Math.max(1,Math.round(img.height*scale));
+      c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+      try{localStorage.setItem('ma-v2-photo',c.toDataURL('image/jpeg',0.82));applyProfilePhoto()}catch(err){alert('Não foi possível salvar esta foto. Tente uma imagem menor.')}
+    };
+    img.src=reader.result;
+  };
+  reader.readAsDataURL(file);
+  e.target.value='';
+});
+/* Browser notifications */
+function updateNotificationStatus(){
+  const el=$('#notificationStatus'); if(!el)return;
+  if(!('Notification' in window)){el.textContent='Este navegador não oferece notificações.';return}
+  const p=Notification.permission;
+  el.textContent=p==='granted'?'Notificações ativadas neste navegador.':p==='denied'?'Notificações bloqueadas no navegador.':'Notificações ainda não autorizadas.';
+}
+async function enableNotifications(){
+  if(!('Notification' in window)){updateNotificationStatus();return}
+  const p=await Notification.requestPermission(); updateNotificationStatus(); if(p==='granted') scheduleNotifications();
+}
+function showAgendaNotification(ev){
+  if(!('Notification' in window)||Notification.permission!=='granted')return;
+  try{new Notification('Minha Agenda',{body:`${ev.title}${ev.time?' às '+ev.time:''}`,icon:'assets/agenda-icon-192.png',tag:'agenda-'+ev.id})}catch{}
+}
+function scheduleNotifications(){
+  if(window.__agendaNotifTimer)clearInterval(window.__agendaNotifTimer);
+  if(!('Notification' in window)||Notification.permission!=='granted')return;
+  const check=()=>{
+    const now=Date.now();
+    state.events.filter(e=>e.reminder&&!e.done&&e.time).forEach(e=>{
+      const due=new Date(`${e.date}T${e.time}:00`).getTime();
+      if(Math.abs(due-now)<=30000 && localStorage.getItem('ma-notified-'+e.id)!=='1'){
+        showAgendaNotification(e);localStorage.setItem('ma-notified-'+e.id,'1');
+      }
+    });
+  };
+  check(); window.__agendaNotifTimer=setInterval(check,30000);
+}
+$('#enableNotificationsBtn').onclick=enableNotifications;
+$('#testNotificationBtn').onclick=()=>{if('Notification' in window && Notification.permission==='granted')showAgendaNotification({id:'test',title:'Teste de notificação da Minha Agenda',time:''});else enableNotifications()};
+updateNotificationStatus();
+
+applyProfilePhoto();
 if(localStorage.getItem('ma-v2-dark')==='true'){document.body.classList.add('dark');$('#darkToggle').checked=true}
 function escapeHtml(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
 render();
+scheduleNotifications();
