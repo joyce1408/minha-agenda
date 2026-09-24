@@ -67,3 +67,8 @@ html,body{overflow-x:hidden}.main{min-width:0;width:100%}.month-grid{width:100%;
   .planner-note p{font-size:10px;line-height:1.35;margin:3px 0 0}
   .planner-heart{font-size:15px}
 }
+
+/* V5 additions */
+.task-form{align-items:center}.task-form input[type="date"]{max-width:170px}.backup-actions{display:flex;gap:8px;flex-wrap:wrap}
+@media(max-width:720px){.task-form{display:grid;grid-template-columns:1fr 1fr}.task-form input:first-child{grid-column:1/-1}.task-form button{grid-column:1/-1}.task-form input[type="date"]{max-width:none}.backup-actions{display:grid;grid-template-columns:1fr}.backup-actions button{width:100%}.mobile-bar{grid-template-columns:repeat(4,1fr)}.hero-planner{grid-template-columns:60px minmax(0,1fr);min-height:68px;margin:12px 0 14px}.planner-photo{width:48px;height:48px;min-height:48px;margin:7px}.planner-note{padding:7px 9px}.planner-note h2{font-size:16px}.planner-note p{font-size:9px}.planner-heart{font-size:11px}}
+.hero-planner{grid-template-columns:72px minmax(0,1fr);min-height:82px;margin:14px 0 18px;background:#f8fafb;box-shadow:none}.planner-photo{width:58px;height:58px;min-height:58px;margin:8px;border-radius:9px}.planner-note{padding:8px 14px}.planner-note h2{font-size:19px;line-height:1.15;margin:2px 0}.planner-note p{font-size:10px;line-height:1.35;margin:2px 0}.planner-heart{font-size:13px}.planner-note .eyebrow{font-size:7px}

@@ -1,4 +1,4 @@
-const CACHE_NAME = "minha-agenda-v4-local";
+const CACHE_NAME = "minha-agenda-v5-local";
 const ASSETS = [
   "./",
   "./index.html",
