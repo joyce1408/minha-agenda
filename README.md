@@ -7,7 +7,7 @@ Agenda pessoal local, publicada no GitHub Pages.
 - Sem Microsoft 365 / Teams
 - Sem APIs externas
 - Dados de compromissos, tarefas e lembretes armazenados localmente no navegador
-- Funciona offline depois de carregada
+- Funciona offline depois da primeira abertura, usando Service Worker para cache local dos arquivos principais
 - Indicadores de prazo calculados pela data/hora atual do aparelho
 - Layout responsivo para iPhone, sem rolagem horizontal
 
