@@ -1,4 +1,4 @@
-# Minha Agenda V5 — versão independente
+# Minha Agenda V6 — versão independente
 
 Agenda pessoal local, publicada no GitHub Pages.
 

@@ -169,7 +169,7 @@ window.convertReminder=id=>{
 function switchView(view){
   $$('.view').forEach(v=>v.classList.add('hidden')); $(`#${view}View`).classList.remove('hidden');
   $$('.nav-item,.mobile-bar button').forEach(b=>b.classList.toggle('active',b.dataset.view===view));
-  const titles={agenda:['Agenda','Tudo organizado em um só lugar.'],tarefas:['Tarefas','Atividades que você precisa concluir.'],lembretes:['Lembretes','Anotações rápidas para não esquecer.'],conexoes:['Agenda local','Sem integrações externas.'],configuracoes:['Configurações','Personalize a sua experiência.']};
+  const titles={agenda:['Agenda','Tudo organizado em um só lugar.'],tarefas:['Tarefas','Atividades que você precisa concluir.'],lembretes:['Lembretes','Anotações rápidas para não esquecer.'],configuracoes:['Configurações','Personalize a sua experiência.']};
   $('#pageTitle').textContent=titles[view][0]; $('#pageSubtitle').textContent=titles[view][1];
 }
 $$('[data-view]').forEach(b=>b.addEventListener('click',()=>switchView(b.dataset.view)));
@@ -244,10 +244,9 @@ function applyProfilePhoto(){
   const targets=[$('#brandAvatar'),$('#topAvatar')];
   targets.forEach(el=>{if(!el)return;el.innerHTML=data?`<img src="${data}" alt="Minha foto">`:'＋'});
 }
-function openPhotoPicker(){$('#photoInput').click()}
-$('#brandAvatar').onclick=openPhotoPicker;
-$('#topAvatar').onclick=openPhotoPicker;
-$('#choosePhotoBtn').onclick=openPhotoPicker;
+function openPhotoPicker(){const input=$('#photoInput');if(!input)return;try{if(typeof input.showPicker==='function')input.showPicker();else input.click()}catch{input.click()}}
+$('#brandAvatar')?.addEventListener('click',e=>{e.preventDefault();openPhotoPicker()});
+$('#topAvatar')?.addEventListener('click',e=>{e.preventDefault();openPhotoPicker()});
 $('#removePhotoBtn').onclick=()=>{localStorage.removeItem('ma-v2-photo');applyProfilePhoto()};
 $('#photoInput').addEventListener('change',e=>{
   const file=e.target.files?.[0]; if(!file)return;
@@ -294,8 +293,8 @@ function scheduleNotifications(){
   };
   check(); window.__agendaNotifTimer=setInterval(check,30000);
 }
-$('#enableNotificationsBtn').onclick=enableNotifications;
-$('#testNotificationBtn').onclick=()=>{if('Notification' in window && Notification.permission==='granted')showAgendaNotification({id:'test',title:'Teste de notificação da Minha Agenda',time:''});else enableNotifications()};
+$('#enableNotificationsBtn')?.addEventListener('click',e=>{e.preventDefault();enableNotifications()});
+$('#testNotificationBtn')?.addEventListener('click',e=>{e.preventDefault();if('Notification' in window && Notification.permission==='granted')showAgendaNotification({id:'test',title:'Teste de notificação da Minha Agenda',time:''});else enableNotifications()});
 updateNotificationStatus();
 
 applyProfilePhoto();
