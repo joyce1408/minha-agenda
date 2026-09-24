@@ -1,12 +1,14 @@
 # Minha Agenda V2 — versão independente
 
-Agenda pessoal hospedada no GitHub Pages.
+Agenda pessoal local, publicada no GitHub Pages.
 
 - Sem Google Calendar
 - Sem Apple Calendar
 - Sem Microsoft 365 / Teams
 - Sem APIs externas
-- Dados de eventos, tarefas, lembretes, tema e foto ficam no armazenamento local do navegador.
-- Pode ser instalada no iPhone como PWA pelo Safari.
+- Dados de compromissos, tarefas e lembretes armazenados localmente no navegador
+- Funciona offline depois da primeira abertura, usando Service Worker para cache local dos arquivos principais
+- Indicadores de prazo calculados pela data/hora atual do aparelho
+- Layout responsivo para iPhone, sem rolagem horizontal
 
-Observação: o armazenamento local é específico do navegador/aparelho. Se os dados forem apagados do navegador, eles podem ser perdidos.
+> Observação: o armazenamento local é específico do navegador/aparelho. Se os dados do site forem apagados, eles poderão ser perdidos.

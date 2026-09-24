@@ -1,3 +1,4 @@
+
 const savedEvents = JSON.parse(localStorage.getItem('ma-v2-events') || 'null');
 const savedTasks = JSON.parse(localStorage.getItem('ma-v2-tasks') || 'null');
 const savedReminders = JSON.parse(localStorage.getItem('ma-v2-reminders') || 'null');
@@ -7,12 +8,12 @@ const state = {
   calendarView: 'day',
   filter: 'all',
   showSource: true,
-  events: savedEvents || [
-    {id:1,title:'Reunião financeira',date:isoDate(new Date()),time:'09:00',source:'local',location:'',done:false,reminder:true},
-    {id:2,title:'Consulta / compromisso',date:isoDate(addDays(new Date(),1)),time:'14:30',source:'local',location:'',done:false,reminder:true},
-    {id:3,title:'Planejamento semanal',date:isoDate(addDays(new Date(),2)),time:'19:00',source:'local',location:'',done:false,reminder:false},
+  events: (savedEvents || [
+    {id:1,title:'Reunião financeira',date:isoDate(new Date()),time:'09:00',source:'microsoft',location:'Teams',done:false,reminder:true},
+    {id:2,title:'Consulta / compromisso',date:isoDate(addDays(new Date(),1)),time:'14:30',source:'apple',location:'',done:false,reminder:true},
+    {id:3,title:'Planejamento semanal',date:isoDate(addDays(new Date(),2)),time:'19:00',source:'google',location:'',done:false,reminder:false},
     {id:4,title:'Comprar materiais',date:isoDate(new Date()),time:'18:00',source:'local',location:'',done:false,reminder:true}
-  ],
+  ]).map(e=>({...e, source:'local'})),
   tasks: savedTasks || [
     {id:1,title:'Revisar pendências do setor',date:isoDate(new Date()),done:false},
     {id:2,title:'Organizar documentos',date:isoDate(addDays(new Date(),1)),done:false}
@@ -23,16 +24,7 @@ const state = {
   ]).map(r => ({...r, done: Boolean(r.done)}))
 };
 
-// Agenda independente: eventos antigos de Apple/Google/Microsoft passam a ser locais.
-state.events = state.events.map(e => ({
-  ...e,
-  source: 'local',
-  googleId: undefined
-}));
-localStorage.removeItem('ma-google-client-id');
-localStorage.removeItem('ma-google-calendar-id');
-localStorage.removeItem('ma-google-connected');
-
+state.events = state.events.map(e=>({...e, source:'local'}));
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const sourceLabel = {local:'Minha Agenda'};
@@ -42,6 +34,28 @@ function addDays(d,n){ const x=new Date(d); x.setDate(x.getDate()+n); return x }
 function fmtDate(d){ return new Intl.DateTimeFormat('pt-BR',{weekday:'long',day:'2-digit',month:'long'}).format(d) }
 function fmtShort(s){ const [y,m,d]=s.split('-').map(Number); return `${String(d).padStart(2,'0')}/${String(m).padStart(2,'0')}/${y}` }
 function pad(n){return String(n).padStart(2,'0')}
+function deadlineFor(item){
+  const date=item?.date; if(!date)return null;
+  const time=item.time || (item.deadlineTime || '23:59');
+  const d=new Date(`${date}T${time}:00`);
+  return Number.isNaN(d.getTime())?null:d;
+}
+function urgencyFor(item){
+  const deadline=deadlineFor(item); if(!deadline)return {level:'none',label:'Sem prazo',days:null};
+  const diff=deadline.getTime()-Date.now();
+  const days=diff/86400000;
+  if(diff<0)return {level:'overdue',label:'Atrasado',days};
+  if(days<=1)return {level:'urgent',label:'Vence hoje',days};
+  if(days<=7)return {level:'soon',label:`Faltam ${Math.ceil(days)} dias`,days};
+  return {level:'safe',label:`Faltam ${Math.ceil(days)} dias`,days};
+}
+function batteryMarkup(item){
+  const u=urgencyFor(item);
+  if(u.level==='none')return '';
+  const fill=u.level==='safe'?3:u.level==='soon'?2:1;
+  return `<span class="deadline-status ${u.level}" title="${escapeHtml(u.label)}"><span class="battery-icon" aria-hidden="true"><i></i><i></i><i></i></span><span>${escapeHtml(u.label)}</span></span>`;
+}
+function isUrgent(item){const u=urgencyFor(item);return u.level==='urgent'||u.level==='overdue'}
 function save(){
   localStorage.setItem('ma-v2-events',JSON.stringify(state.events));
   localStorage.setItem('ma-v2-tasks',JSON.stringify(state.tasks));
@@ -59,11 +73,7 @@ function render(){
   $('#summaryAll').textContent = eventsFor(new Date()).length;
   $('#summaryPending').textContent = state.events.filter(e=>!e.done).length;
   $('#summaryTasks').textContent = state.tasks.filter(t=>!t.done).length;
-  $('#summaryUrgent').textContent = state.events.filter(e=>{
-    const d=new Date(e.date+'T00:00:00'); const now=new Date();
-    const diff=(d-new Date(now.getFullYear(),now.getMonth(),now.getDate()))/86400000;
-    return diff>=0&&diff<=3&&!e.done
-  }).length;
+  $('#summaryUrgent').textContent = [...state.events,...state.tasks].filter(x=>!x.done&&isUrgent(x)).length;
   renderCalendar(); renderUpcoming(); renderTasks(); renderReminders();
 }
 
@@ -82,7 +92,7 @@ function renderDay(){
   }).join('')}</div></div>`;
 }
 function eventChip(e){
-  return `<div class="event-chip ${sourceClass(e.source)} ${e.done?'done':''}" onclick='openEventEditor(${JSON.stringify(String(e.id))})' role="button" tabindex="0"><strong>${e.time||'Sem horário'} · ${escapeHtml(e.title)}</strong><small>${e.location?escapeHtml(e.location)+' · ':''}${sourceLabel[e.source]}</small></div>`
+  return `<div class="event-chip local ${e.done?'done':''}" onclick='openEventEditor(${JSON.stringify(String(e.id))})' role="button" tabindex="0"><div class="event-chip-main"><button class="quick-check ${e.done?'checked':''}" type="button" onclick='event.stopPropagation();toggleEvent(${JSON.stringify(String(e.id))})' aria-label="${e.done?'Reabrir':'Concluir'} compromisso">${e.done?'✓':''}</button><div><strong>${e.time||'Sem horário'} · ${escapeHtml(e.title)}</strong><small>${e.location?escapeHtml(e.location)+' · ':''}Minha Agenda</small></div></div>${batteryMarkup(e)}</div>`
 }
 function startOfWeek(d){const x=new Date(d); const day=x.getDay(); x.setDate(x.getDate()-(day===0?6:day-1)); return x}
 function renderWeek(){
@@ -103,7 +113,7 @@ function renderMonth(){
   const cells=[]; for(let i=0;i<offset;i++) cells.push('<div class="month-cell muted"></div>');
   for(let day=1;day<=daysIn;day++){
     const d=new Date(y,m,day), items=eventsFor(d);
-    cells.push(`<div class="month-cell"><div class="month-day-number">${day}</div>${items.slice(0,3).map(e=>`<div class="mini-event">${escapeHtml(e.time||'')} ${escapeHtml(e.title)}</div>`).join('')}</div>`)
+    cells.push(`<div class="month-cell"><div class="month-day-number">${day}</div>${items.slice(0,3).map(e=>`<div class="mini-event" title="${escapeHtml(urgencyFor(e).label)}"><span class="mini-time">${escapeHtml(e.time||'')}</span> ${escapeHtml(e.title)}</div>`).join('')}</div>`)
   }
   return `<div class="month-grid">${['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'].map(x=>`<div class="month-head">${x}</div>`).join('')}${cells.join('')}</div>`;
 }
@@ -117,9 +127,13 @@ function renderYear(){
 }
 
 function renderUpcoming(){
-  const nowKey=isoDate(new Date());
-  const list=[...state.events].filter(e=>e.date>=nowKey && !e.done).sort((a,b)=>(a.date+(a.time||'99:99')).localeCompare(b.date+(b.time||'99:99'))).slice(0,15);
-  $('#upcomingList').innerHTML=list.length?list.map(e=>`<article class="agenda-card"><div class="time-col"><strong>${e.time||'—'}</strong><span>${fmtShort(e.date)}</span></div><div class="card-main"><h3>${escapeHtml(e.title)}</h3><p>${e.location?escapeHtml(e.location):'Sem local'}</p></div><button class="source-badge ${e.source}" type="button" onclick='toggleEvent(${JSON.stringify(String(e.id))})'>${state.showSource?sourceLabel[e.source]:'○'}</button><div class="event-actions"><button class="icon-btn" type="button" onclick='openEventEditor(${JSON.stringify(String(e.id))})' title="Editar" aria-label="Editar">✎</button><button class="icon-btn danger" type="button" onclick='deleteEvent(${JSON.stringify(String(e.id))})' title="Excluir" aria-label="Excluir">×</button></div></article>`).join(''):'<div class="panel muted">Nenhum compromisso encontrado.</div>';
+  const now=Date.now();
+  let list=[...state.events].filter(e=>!e.done && deadlineFor(e)?.getTime()>=now);
+  if(state.filter==='pending') list=list.filter(e=>!e.done);
+  if(state.filter==='urgent') list=list.filter(e=>isUrgent(e));
+  list.sort((a,b)=>deadlineFor(a)-deadlineFor(b));
+  list=list.slice(0,15);
+  $('#upcomingList').innerHTML=list.length?list.map(e=>`<article class="agenda-card"><button class="quick-check card-check" type="button" onclick='toggleEvent(${JSON.stringify(String(e.id))})' aria-label="Concluir compromisso">${e.done?'✓':''}</button><div class="time-col"><strong>${e.time||'—'}</strong><span>${fmtShort(e.date)}</span></div><div class="card-main"><h3>${escapeHtml(e.title)}</h3><p>${e.location?escapeHtml(e.location):'Sem local'}</p>${batteryMarkup(e)}</div><div class="event-actions"><button class="icon-btn" type="button" onclick='openEventEditor(${JSON.stringify(String(e.id))})' title="Editar" aria-label="Editar">✎</button><button class="icon-btn danger" type="button" onclick='deleteEvent(${JSON.stringify(String(e.id))})' title="Excluir" aria-label="Excluir">×</button></div></article>`).join(''):'<div class="panel muted">Nenhum compromisso encontrado para este filtro.</div>';
 }
 window.toggleEvent=id=>{const e=state.events.find(x=>String(x.id)===String(id)); if(e){e.done=!e.done;save();render()}}
 
@@ -128,7 +142,7 @@ function renderTasks(){
   $('#taskList').innerHTML=`<div class="cards">${pending.length?pending.map(taskCard).join(''):'<div class="panel muted">Nenhuma tarefa pendente.</div>'}</div>${completed.length?`<div class="history-card standalone-history"><h3>Tarefas concluídas</h3>${completed.map(t=>`<div class="history-item done"><div><strong>${escapeHtml(t.title)}</strong><div>${fmtShort(t.date)}</div></div><button class="complete-btn" onclick="toggleTask(${t.id})">Reabrir</button></div>`).join('')}</div>`:''}`;
 }
 function taskCard(t){
-  return `<article class="task-card"><button class="check" onclick="toggleTask(${t.id})" aria-label="Concluir tarefa"></button><div><div class="task-title">${escapeHtml(t.title)}</div><div class="task-meta">${fmtShort(t.date)}</div></div></article>`
+  return `<article class="task-card"><button class="quick-check" onclick="toggleTask(${t.id})" aria-label="Concluir tarefa"></button><div class="task-content"><div class="task-title">${escapeHtml(t.title)}</div><div class="task-meta">${fmtShort(t.date)}</div>${batteryMarkup(t)}</div></article>`
 }
 window.toggleTask=id=>{const t=state.tasks.find(x=>String(x.id)===String(id)); if(t){t.done=!t.done;save();render()}}
 
@@ -155,24 +169,16 @@ window.convertReminder=id=>{
 function switchView(view){
   $$('.view').forEach(v=>v.classList.add('hidden')); $(`#${view}View`).classList.remove('hidden');
   $$('.nav-item,.mobile-bar button').forEach(b=>b.classList.toggle('active',b.dataset.view===view));
-  const titles={agenda:['Agenda','Tudo organizado em um só lugar.'],tarefas:['Tarefas','Atividades que você precisa concluir.'],lembretes:['Lembretes','Anotações rápidas para não esquecer.'],configuracoes:['Configurações','Personalize a sua experiência.']};
+  const titles={agenda:['Agenda','Tudo organizado em um só lugar.'],tarefas:['Tarefas','Atividades que você precisa concluir.'],lembretes:['Lembretes','Anotações rápidas para não esquecer.'],conexoes:['Agenda local','Sem integrações externas.'],configuracoes:['Configurações','Personalize a sua experiência.']};
   $('#pageTitle').textContent=titles[view][0]; $('#pageSubtitle').textContent=titles[view][1];
 }
 $$('[data-view]').forEach(b=>b.addEventListener('click',()=>switchView(b.dataset.view)));
 $$('[data-filter]').forEach(b=>b.addEventListener('click',()=>{
   const f=b.dataset.filter;
-  if(f==='tasks'){
-    switchView('tarefas');
-    setTimeout(()=>$('#taskList')?.scrollIntoView({behavior:'smooth',block:'start'}),50);
-    return;
-  }
+  state.filter=f;
+  if(f==='tasks'){switchView('tarefas');return;}
   switchView('agenda');
-  if(f==='all'){
-    state.date=new Date();
-    render();
-    setTimeout(()=>$('#calendarContent')?.scrollIntoView({behavior:'smooth',block:'start'}),50);
-    return;
-  }
+  if(f==='all')state.date=new Date();
   render();
   setTimeout(()=>$('#upcomingList')?.scrollIntoView({behavior:'smooth',block:'start'}),50);
 }));
@@ -204,7 +210,7 @@ window.openEventEditor=id=>{
   $('#eventLocation').value=ev.location||''; $('#eventSource').value=ev.source||'local'; $('#eventReminder').checked=ev.reminder!==false;
   $('#eventDialog').showModal();
 };
-window.deleteEvent=id=>{
+window.deleteEvent=async id=>{
   const ev=state.events.find(x=>String(x.id)===String(id)); if(!ev)return;
   if(!confirm(`Excluir o compromisso "${ev.title}"?`))return;
   state.events=state.events.filter(x=>String(x.id)!==String(id)); save(); render();
@@ -212,17 +218,19 @@ window.deleteEvent=id=>{
 $('#deleteEventBtn').onclick=async()=>{const id=$('#eventDialog').dataset.editingId;if(id){$('#eventDialog').close();await deleteEvent(id)}};
 $('#closeDialog').onclick=()=>$('#eventDialog').close();
 $('#cancelEvent').onclick=()=>$('#eventDialog').close();
-$('#eventForm').addEventListener('submit',e=>{
+$('#eventForm').addEventListener('submit',async e=>{
   e.preventDefault();
   const editingId=$('#eventDialog').dataset.editingId||'';
   const reminderId=Number($('#eventDialog').dataset.reminderId||0);
   const payload={title:$('#eventTitle').value.trim(),date:$('#eventDate').value,time:$('#eventTime').value,location:$('#eventLocation').value.trim(),source:'local',reminder:$('#eventReminder').checked};
   if(editingId){
     const ev=state.events.find(x=>String(x.id)===String(editingId)); if(!ev)return;
-    Object.assign(ev,payload);
-  }else{
-    state.events.push({id:Date.now(),...payload,done:false});
+    Object.assign(ev,payload,{source:'local'});
+    save(); $('#eventDialog').close(); resetEventDialog(); render();
+    return;
   }
+  const newEvent={id:Date.now(),...payload,done:false};
+  state.events.push(newEvent);
   if(reminderId){const r=state.reminders.find(x=>x.id===reminderId);if(r)r.done=true;}
   save(); e.target.reset(); resetEventDialog(); $('#eventDialog').close(); render(); scheduleNotifications();
 });
@@ -295,3 +303,5 @@ if(localStorage.getItem('ma-v2-dark')==='true'){document.body.classList.add('dar
 function escapeHtml(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
 render();
 scheduleNotifications();
+
+  

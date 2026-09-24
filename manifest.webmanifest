@@ -1,23 +1,13 @@
 {
   "name": "Minha Agenda",
   "short_name": "Minha Agenda",
-  "start_url": "./",
+  "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#eef0f4",
-  "theme_color": "#8b87c9",
-  "lang": "pt-BR",
+  "background_color": "#f1f4f5",
+  "theme_color": "#244b67",
   "icons": [
-    {
-      "src": "assets/agenda-icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "assets/agenda-icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
+    {"src":"assets/agenda-icon-180.png","sizes":"180x180","type":"image/png","purpose":"any"},
+    {"src":"assets/agenda-icon-192.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},
+    {"src":"assets/agenda-icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}
   ]
 }
